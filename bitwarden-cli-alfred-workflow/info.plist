@@ -462,7 +462,7 @@ else:
     bw_exec = get_bw_exec()
     session_key = getpassword('alfred-bitwarden-session-key')
     my_env["BW_SESSION"] = str(session_key)
-    cmd = "{bw_exec} get totp {item}".format(bw_exec=bw_exec, item=details[1])
+    cmd = "{bw_exec} get totp {item}".format(bw_exec=bw_exec, item=details[3])
     proc = Popen(cmd.split(), env=my_env, stdout=PIPE)
     output =  proc.stdout.read().decode()
     print(output.strip())</string>
@@ -1255,7 +1255,7 @@ else:
     bw_exec = get_bw_exec()
     session_key = getpassword('alfred-bitwarden-session-key')
     my_env["BW_SESSION"] = str(session_key)
-    cmd = "{bw_exec} get username {item}".format(bw_exec=bw_exec, item=details[1])
+    cmd = "{bw_exec} get username {item}".format(bw_exec=bw_exec, item=details[3])
     proc = Popen(cmd.split(), env=my_env, stdout=PIPE)
     output =  proc.stdout.read().decode()
     print(output.strip())</string>
@@ -1339,7 +1339,7 @@ else:
     bw_exec = get_bw_exec()
     session_key = getpassword('alfred-bitwarden-session-key')
     my_env["BW_SESSION"] = str(session_key)
-    cmd = "{bw_exec} get password {item}".format(bw_exec=bw_exec, item=details[1])
+    cmd = "{bw_exec} get password {item}".format(bw_exec=bw_exec, item=details[3])
     proc = Popen(cmd.split(), env=my_env, stdout=PIPE)
     output =  proc.stdout.read().decode()
     print(output.strip())</string>
