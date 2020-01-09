@@ -3,12 +3,18 @@ from subprocess import Popen, PIPE
 import os
 
 search = "{query}"
+FOLDER_SWITCH = '-f'
 
 my_env = os.environ.copy()
 my_env["PATH"] = "/usr/local/bin:/opt/local/bin:" + my_env["PATH"]
 
 result = {}  # type: dict
 result["items"] = []
+
+
+class SearchType(object):
+    items = 'items'
+    folders = 'folders'
 
 
 def get_session_key():
@@ -46,10 +52,16 @@ def add_result(uid, title, subtitle, arg, result_list):
 
 def error_result(type):
     uid_switcher = {
-        "login": {"uid": "error-login", "title": "It appears you are not logged in to Bitwarden.", "subtitle": "Please login using the \'bwlogin\' command or press \'ctrl\' + enter to login now.", "arg": "scriptlocationnotset"},
-        "install": {"uid": "error-noinstall", "title": "You do not have the Bitwarden CLI Installed.", "subtitle": "Press enter to be taken to the install instructions.", "arg": "\'error-noinstall\'"},
-        "none": {"uid": "error-nonefount", "title": "No search results matching your query found.", "subtitle": "Please try again with a different query.", "arg": "\'error-nonefound\'"},
-        "locked": {"uid": "error-locked", "title": "Your vault is locked.", "subtitle": "Please unlock your vault with \'bwunlock\' or press \'fn\' + enter to unlock now..", "arg": "scriptlocationnotset"},
+        "login": {"uid": "error-login", "title": "It appears you are not logged in to Bitwarden.",
+                  "subtitle": "Please login using the \'bwlogin\' command or press \'ctrl\' + enter to login now.",
+                  "arg": "scriptlocationnotset"},
+        "install": {"uid": "error-noinstall", "title": "You do not have the Bitwarden CLI Installed.",
+                    "subtitle": "Press enter to be taken to the install instructions.", "arg": "\'error-noinstall\'"},
+        "none": {"uid": "error-nonefount", "title": "No search results matching your query found.",
+                 "subtitle": "Please try again with a different query.", "arg": "\'error-nonefound\'"},
+        "locked": {"uid": "error-locked", "title": "Your vault is locked.",
+                   "subtitle": "Please unlock your vault with \'bwunlock\' or press \'fn\' + enter to unlock now..",
+                   "arg": "scriptlocationnotset"},
     }
     uid = uid_switcher.get(type)["uid"]
     title = uid_switcher.get(type)["title"]
@@ -70,8 +82,15 @@ def get_bw_exec():
     return bw_exec
 
 
-def get_bw_search_result(bw_exec, session_key, search):
-    cmd = "{bw_exec} --session={session_key} list items --search={search}".format(bw_exec=bw_exec, session_key=session_key, search=search)
+def get_bw_search_result(bw_exec, session_key, bw_list_obj, bw_search, bw_folder_id=None):
+    # cmd = "{bw_exec} --session={session_key} list items --search={search}".format(
+    #     bw_exec=bw_exec, session_key=session_key, search=search)
+    cmd = "{bw_exec} --session={session_key} list {bw_list_obj} --search={bw_search}".format(bw_exec=bw_exec,
+                                                                                             session_key=session_key,
+                                                                                             bw_list_obj=bw_list_obj,
+                                                                                             bw_search=bw_search)
+    if bw_folder_id is not None:
+        cmd = "{cmd} --folderid={folderid}".format(cmd=cmd, folderid=bw_folder_id)
     proc = Popen(cmd.split(), env=my_env, stdout=PIPE, stderr=PIPE)
     output, err = proc.communicate()
     if "mac failed." in err.decode('utf8').strip():
@@ -96,6 +115,43 @@ def get_bw_search_result(bw_exec, session_key, search):
     return results
 
 
+def parse_search_string(bw_exec, session_key, search):
+    """
+    Parse user input and split into search string and folder name.
+    Then search for folder id by name and return *first* folder id, which is found.
+
+    :param bw_exec: path to Bitwarden executable
+    :param session_key: Bitwarden session key
+    :param search: user search input
+    :return: tuple(search string, folder_id)
+    """
+    tokens = search.split()
+    if FOLDER_SWITCH not in tokens:
+        return search, None
+
+    folder_id = None
+    token_id = tokens.index(FOLDER_SWITCH)
+    try:
+        tokens.pop(token_id)
+        folder_name = tokens.pop(token_id)
+        res = get_bw_search_result(bw_exec=bw_exec, session_key=session_key,
+                                   bw_list_obj=SearchType.folders,
+                                   bw_search=folder_name)
+        folder_id = res[0].get('id')
+    except IndexError:
+        pass
+    finally:
+        return ' '.join(tokens), folder_id
+
+
+def bw_search(bw_exec, session_key, search):
+    search_str, folder_id = parse_search_string(bw_exec, session_key, search)
+    return get_bw_search_result(bw_exec=bw_exec, session_key=session_key,
+                                bw_list_obj=SearchType.items,
+                                bw_search=search_str,
+                                bw_folder_id=folder_id)
+
+
 def build_bw_result(bw_exec, session_key, search_result):
     username = ""
     for bw_item in search_result:
@@ -118,7 +174,7 @@ def build_bw_result(bw_exec, session_key, search_result):
 session_key = get_session_key()
 check_login = check_login()
 bw_exec = get_bw_exec()
-bw_search_result = get_bw_search_result(bw_exec=bw_exec, session_key=session_key, search=search)
+bw_search_result = bw_search(bw_exec=bw_exec, session_key=session_key, search=search)
 build_bw_result(bw_exec=bw_exec, session_key=session_key, search_result=bw_search_result)
 
 print(json.dumps(result))
