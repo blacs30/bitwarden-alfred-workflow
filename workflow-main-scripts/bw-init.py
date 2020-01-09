@@ -1,3 +1,4 @@
+# coding=utf-8
 import json
 from subprocess import Popen, PIPE
 import os
@@ -8,8 +9,7 @@ FOLDER_SWITCH = '-f'
 my_env = os.environ.copy()
 my_env["PATH"] = "/usr/local/bin:/opt/local/bin:" + my_env["PATH"]
 
-result = {}  # type: dict
-result["items"] = []
+result = {"items": []}  # type: dict
 
 
 class SearchType(object):
@@ -83,8 +83,6 @@ def get_bw_exec():
 
 
 def get_bw_search_result(bw_exec, session_key, bw_list_obj, bw_search, bw_folder_id=None):
-    # cmd = "{bw_exec} --session={session_key} list items --search={search}".format(
-    #     bw_exec=bw_exec, session_key=session_key, search=search)
     cmd = "{bw_exec} --session={session_key} list {bw_list_obj} --search={bw_search}".format(bw_exec=bw_exec,
                                                                                              session_key=session_key,
                                                                                              bw_list_obj=bw_list_obj,
@@ -153,21 +151,21 @@ def bw_search(bw_exec, session_key, search):
 
 
 def build_bw_result(bw_exec, session_key, search_result):
-    username = ""
     for bw_item in search_result:
+        subtitle = ""
         item_id = bw_item["id"]
         name = bw_item["name"]
         try:
             username = bw_item["login"]["username"].encode('utf-8').strip()
         except (KeyError, AttributeError):
-            username = "---"
+            username = "∅"
+        finally:
+            subtitle += 'Username: {username}'.format(username=username)
         try:
-            totp = bw_item["login"]["totp"].encode('utf-8').strip()
-            if totp:
-                totp = "Available."
+            if bw_item["login"]["totp"]:
+                subtitle += " ⸰ OTP: *"
         except (KeyError, AttributeError):
-            totp = "---"
-        subtitle = "Username: {username}. OTP: {totp}".format(username=username, totp=totp)
+            pass
         add_result(uid=item_id, title=name, subtitle=subtitle, arg=[name, item_id], result_list=result)
 
 
