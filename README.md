@@ -82,28 +82,28 @@ This workflow represents many many hours effort of development and testing. So i
 1. Ensure you have Alfred installed with the Alfred Powerpack License
 2. Install Homebrew (if you do not have it already installed)
 	1. You should be able to just run the command in a terminal window (as your own user account NOT with sudo)
-	2. ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	2. `ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
 	3. Alternatively visit http://brew.sh/ for further instructions.
 3. Install Bitwarden CLI command line interface
 	4. In a terminal window run
-		brew install bitwarden-cli
+		`brew install bitwarden-cli`
 5. Download the .alfredworkflow file
 6. Open the .alfredworkflow file to import into Alfred
-7. Run 'bwsetemail yourloginemail@yourdomain.com' in Alfred to set your Bitwarden username.
-8. Run 'bwsetserver https://bitwarden.example.com' in Alfred to set your Bitwarden URL. Use https://bitwarden.com for the hosted bitwarden.
+7. Run `bwsetemail yourloginemail@yourdomain.com` in Alfred to set your Bitwarden username.
+8. Run `bwsetserver https://bitwarden.example.com` in Alfred to set your Bitwarden URL. Use https://bitwarden.com for the hosted bitwarden.
 
 ## Usage
 
-* bwsetemail yourname@example.com - must be run when you first install/upgrade to version 1.0 or higher
-* bwsetemail - Set the Bitwarden user account email
-* bwsetserver - Set the Bitwarden server to connect to
-* bwset2fa - Enable 2FA for Bitwarden login
-* bwset2famethod - Set the method for the Bitwarden 2FA login (optional)
-* bwlogin - Log in to Bitwarden
-* bwlogout - Log out of Bitwarden
-* bwunlock - Unlock the Bitwarden vault in case in case it is locked
-* bwsync - Syncronize bitwarden with the remote server
-* bw <query> Search Bitwarden vault for item containing <query>, press return to copy the password to clipboard.
+* `bwsetemail yourname@example.com` - must be run when you first install/upgrade to version 1.0 or higher
+* `bwsetemail` - Set the Bitwarden user account email
+* `bwsetserver` - Set the Bitwarden server to connect to
+* `bwset2fa` - Enable 2FA for Bitwarden login
+* `bwset2famethod` - Set the method for the Bitwarden 2FA login (optional)
+* `bwlogin` - Log in to Bitwarden
+* `bwlogout` - Log out of Bitwarden
+* `bwunlock` - Unlock the Bitwarden vault in case in case it is locked
+* `bwsync` - Syncronize bitwarden with the remote server
+* `bw <query>` Search Bitwarden vault for item containing <query>, press return to copy the password to clipboard.
 * Shift modifier can be used on bw <query> to copy the username.
 * Alt modifier can be used on bw <query> to copy the totp (if available).
 
