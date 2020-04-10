@@ -4,6 +4,11 @@ Simple yet powerful integration with the Bitwarden CLI so you can now get your p
 
 **Note**: Passwords with spaces at the beginning or end are _NOT_ supported
 
+## Version 1.3.1 update - Please Read
+
+-----
+* Added ctrl+shift modifier to open the url of an item in the default browser
+
 ## Version 1.3.0 update - Please Read
 
 -----
@@ -106,6 +111,7 @@ This workflow represents many many hours effort of development and testing. So i
 * `bw <query>` Search Bitwarden vault for item containing <query>, press return to copy the password to clipboard.
 * Shift modifier can be used on bw <query> to copy the username.
 * Alt modifier can be used on bw <query> to copy the totp (if available).
+* Ctrl+shift modifier can be used on bw <query> to open the url of an item in the default browser.
 
 ## Contributing
 
