@@ -60,6 +60,31 @@
 				<false/>
 			</dict>
 		</array>
+		<key>22AFA19C-81FB-4234-A40E-A674C517089A</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>6EDC728D-D98F-4708-A098-481F1629B81D</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>sourceoutputuid</key>
+				<string>65D9156C-E2F0-4ADA-AEB5-5493A55C48E8</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>97E21CE8-441E-46A5-B193-F5F43F1D7ED3</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>29656ADA-02CB-48FC-BC0E-20376CF8D8EF</key>
 		<array>
 			<dict>
@@ -319,7 +344,7 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>6EDC728D-D98F-4708-A098-481F1629B81D</string>
+				<string>22AFA19C-81FB-4234-A40E-A674C517089A</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -1358,6 +1383,25 @@ else:
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>browser</key>
+				<string></string>
+				<key>spaces</key>
+				<string></string>
+				<key>url</key>
+				<string>{query}</string>
+				<key>utf8</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.openurl</string>
+			<key>uid</key>
+			<string>6EDC728D-D98F-4708-A098-481F1629B81D</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>concurrently</key>
 				<false/>
 				<key>escaping</key>
@@ -1403,7 +1447,7 @@ else:
     my_env["BW_SESSION"] = str(session_key)
     cmd = "{bw_exec} get uri {item}".format(bw_exec=bw_exec, item=details[1])
     proc = Popen(cmd.split(), env=my_env, stdout=PIPE)
-    output =  proc.stdout.read().decode()
+    output = proc.stdout.read().decode()
     sys.stdout.write(output.strip())
     sys.stdout.flush()</string>
 				<key>scriptargtype</key>
@@ -1423,19 +1467,51 @@ else:
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>browser</key>
-				<string></string>
-				<key>spaces</key>
-				<string></string>
-				<key>url</key>
-				<string>{query}</string>
-				<key>utf8</key>
-				<true/>
+				<key>conditions</key>
+				<array>
+					<dict>
+						<key>inputstring</key>
+						<string></string>
+						<key>matchcasesensitive</key>
+						<false/>
+						<key>matchmode</key>
+						<integer>1</integer>
+						<key>matchstring</key>
+						<string></string>
+						<key>outputlabel</key>
+						<string>not empty</string>
+						<key>uid</key>
+						<string>65D9156C-E2F0-4ADA-AEB5-5493A55C48E8</string>
+					</dict>
+				</array>
+				<key>elselabel</key>
+				<string>empty</string>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.action.openurl</string>
+			<string>alfred.workflow.utility.conditional</string>
 			<key>uid</key>
-			<string>6EDC728D-D98F-4708-A098-481F1629B81D</string>
+			<string>22AFA19C-81FB-4234-A40E-A674C517089A</string>
+			<key>version</key>
+			<integer>1</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>lastpathcomponent</key>
+				<false/>
+				<key>onlyshowifquerypopulated</key>
+				<false/>
+				<key>removeextension</key>
+				<false/>
+				<key>text</key>
+				<string></string>
+				<key>title</key>
+				<string>No url existing in this item</string>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.notification</string>
+			<key>uid</key>
+			<string>97E21CE8-441E-46A5-B193-F5F43F1D7ED3</string>
 			<key>version</key>
 			<integer>1</integer>
 		</dict>
@@ -2129,37 +2205,44 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>09AC0796-377F-4D73-87DC-B1164AC85A95</key>
 		<dict>
 			<key>xpos</key>
-			<integer>510</integer>
+			<integer>515</integer>
 			<key>ypos</key>
-			<integer>795</integer>
+			<integer>910</integer>
 		</dict>
 		<key>102D0B94-B4FC-4450-9B5B-9D76AA0FF12C</key>
 		<dict>
 			<key>xpos</key>
-			<integer>510</integer>
+			<integer>515</integer>
 			<key>ypos</key>
-			<integer>905</integer>
+			<integer>1020</integer>
 		</dict>
 		<key>201D2F2C-024E-4FA6-8B0C-CF32974E5077</key>
 		<dict>
 			<key>xpos</key>
-			<integer>700</integer>
+			<integer>705</integer>
 			<key>ypos</key>
-			<integer>570</integer>
+			<integer>685</integer>
 		</dict>
 		<key>2262A79A-ACCC-44CF-9C89-051CB07A0CB4</key>
 		<dict>
 			<key>xpos</key>
-			<integer>700</integer>
+			<integer>705</integer>
 			<key>ypos</key>
-			<integer>1135</integer>
+			<integer>1250</integer>
+		</dict>
+		<key>22AFA19C-81FB-4234-A40E-A674C517089A</key>
+		<dict>
+			<key>xpos</key>
+			<integer>725</integer>
+			<key>ypos</key>
+			<integer>530</integer>
 		</dict>
 		<key>266860CE-FC28-42E1-998B-229C5AEDF262</key>
 		<dict>
 			<key>xpos</key>
-			<integer>880</integer>
+			<integer>885</integer>
 			<key>ypos</key>
-			<integer>680</integer>
+			<integer>795</integer>
 		</dict>
 		<key>29656ADA-02CB-48FC-BC0E-20376CF8D8EF</key>
 		<dict>
@@ -2178,9 +2261,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>482846CB-67CD-458E-9E2F-F4F208AB34D7</key>
 		<dict>
 			<key>xpos</key>
-			<integer>220</integer>
+			<integer>225</integer>
 			<key>ypos</key>
-			<integer>1015</integer>
+			<integer>1130</integer>
 		</dict>
 		<key>5811419C-5D78-450A-8F28-46CC209BF760</key>
 		<dict>
@@ -2192,9 +2275,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>58852D6A-18EC-4719-8B6D-3830DE3EECE7</key>
 		<dict>
 			<key>xpos</key>
-			<integer>510</integer>
+			<integer>515</integer>
 			<key>ypos</key>
-			<integer>1365</integer>
+			<integer>1480</integer>
 		</dict>
 		<key>58BA8F4E-3368-453A-9490-DBE7FE60328C</key>
 		<dict>
@@ -2206,9 +2289,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>59F80385-2185-4AB0-BE88-A49588D5F66B</key>
 		<dict>
 			<key>xpos</key>
-			<integer>220</integer>
+			<integer>225</integer>
 			<key>ypos</key>
-			<integer>905</integer>
+			<integer>1020</integer>
 		</dict>
 		<key>5D0CA291-8861-4216-8985-C0CB13A7A0D2</key>
 		<dict>
@@ -2220,9 +2303,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>69788964-322B-4148-ADFF-46DD4DB9276E</key>
 		<dict>
 			<key>xpos</key>
-			<integer>510</integer>
+			<integer>515</integer>
 			<key>ypos</key>
-			<integer>1255</integer>
+			<integer>1370</integer>
 		</dict>
 		<key>6EDC728D-D98F-4708-A098-481F1629B81D</key>
 		<dict>
@@ -2234,9 +2317,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>7D01ACF0-2569-46CE-8A8D-AD9CD3736476</key>
 		<dict>
 			<key>xpos</key>
-			<integer>700</integer>
+			<integer>705</integer>
 			<key>ypos</key>
-			<integer>1255</integer>
+			<integer>1370</integer>
 		</dict>
 		<key>815177FB-CED1-42F3-AC5B-C1AC60735FA1</key>
 		<dict>
@@ -2248,9 +2331,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>8820573B-DB5E-4B65-9178-3DD86CF620CC</key>
 		<dict>
 			<key>xpos</key>
-			<integer>700</integer>
+			<integer>705</integer>
 			<key>ypos</key>
-			<integer>905</integer>
+			<integer>1020</integer>
 		</dict>
 		<key>8B840C52-8B3C-4795-95A2-B8BFB3AD4C24</key>
 		<dict>
@@ -2262,9 +2345,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>8C058736-CA55-492F-B2EC-8715A0266564</key>
 		<dict>
 			<key>xpos</key>
-			<integer>880</integer>
+			<integer>885</integer>
 			<key>ypos</key>
-			<integer>570</integer>
+			<integer>685</integer>
 		</dict>
 		<key>8F65DC4B-ED8E-4EE0-A6E0-14C1F0CDF3A4</key>
 		<dict>
@@ -2272,6 +2355,13 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 			<integer>880</integer>
 			<key>ypos</key>
 			<integer>340</integer>
+		</dict>
+		<key>97E21CE8-441E-46A5-B193-F5F43F1D7ED3</key>
+		<dict>
+			<key>xpos</key>
+			<integer>885</integer>
+			<key>ypos</key>
+			<integer>570</integer>
 		</dict>
 		<key>9CD82344-6D4F-4C13-BB10-342D19DBE209</key>
 		<dict>
@@ -2290,58 +2380,58 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>A2718C33-DE84-4E0F-8A09-37DA3C9E8732</key>
 		<dict>
 			<key>xpos</key>
-			<integer>510</integer>
+			<integer>515</integer>
 			<key>ypos</key>
-			<integer>680</integer>
+			<integer>795</integer>
 		</dict>
 		<key>B4A5236B-C4A6-4799-A0BE-28E6035E6337</key>
 		<dict>
 			<key>xpos</key>
-			<integer>700</integer>
+			<integer>705</integer>
 			<key>ypos</key>
-			<integer>1015</integer>
+			<integer>1130</integer>
 		</dict>
 		<key>BD91F384-487A-41CF-87FD-72F6CC5FA91F</key>
 		<dict>
 			<key>xpos</key>
-			<integer>220</integer>
+			<integer>225</integer>
 			<key>ypos</key>
-			<integer>680</integer>
+			<integer>795</integer>
 		</dict>
 		<key>C2D0FB11-55FC-4FD2-B32A-9923121F0321</key>
 		<dict>
 			<key>xpos</key>
-			<integer>220</integer>
+			<integer>225</integer>
 			<key>ypos</key>
-			<integer>570</integer>
+			<integer>685</integer>
 		</dict>
 		<key>C594F6CC-98D0-45DF-871B-AACC53E6B44C</key>
 		<dict>
 			<key>xpos</key>
-			<integer>510</integer>
+			<integer>515</integer>
 			<key>ypos</key>
-			<integer>1135</integer>
+			<integer>1250</integer>
 		</dict>
 		<key>C59B281E-81B3-45CC-AF44-99A6A66C2087</key>
 		<dict>
 			<key>xpos</key>
-			<integer>700</integer>
+			<integer>705</integer>
 			<key>ypos</key>
-			<integer>1365</integer>
+			<integer>1480</integer>
 		</dict>
 		<key>C79AF6DB-F2E6-47BD-A7C9-B1E8E5D4639B</key>
 		<dict>
 			<key>xpos</key>
 			<integer>510</integer>
 			<key>ypos</key>
-			<integer>455</integer>
+			<integer>510</integer>
 		</dict>
 		<key>D049EE1A-03D1-4BDF-8920-EE8667E7365C</key>
 		<dict>
 			<key>xpos</key>
-			<integer>510</integer>
+			<integer>515</integer>
 			<key>ypos</key>
-			<integer>570</integer>
+			<integer>685</integer>
 		</dict>
 		<key>D21298B3-763D-48F9-A804-C3B06D3B70E7</key>
 		<dict>
@@ -2353,9 +2443,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>D71065D5-E20E-435B-A76B-9C351D59165F</key>
 		<dict>
 			<key>xpos</key>
-			<integer>700</integer>
+			<integer>705</integer>
 			<key>ypos</key>
-			<integer>795</integer>
+			<integer>910</integer>
 		</dict>
 		<key>DE8D285B-733F-4B2D-91DA-4613717E2005</key>
 		<dict>
@@ -2367,9 +2457,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>DF86BC53-DFDC-4862-879C-2988E0680511</key>
 		<dict>
 			<key>xpos</key>
-			<integer>220</integer>
+			<integer>225</integer>
 			<key>ypos</key>
-			<integer>1135</integer>
+			<integer>1250</integer>
 		</dict>
 		<key>E78B5564-10CE-469F-9C55-B56C3E7D41A7</key>
 		<dict>
@@ -2381,23 +2471,23 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>EF20647F-5BE3-4143-A667-40375A6C91F8</key>
 		<dict>
 			<key>xpos</key>
-			<integer>510</integer>
+			<integer>515</integer>
 			<key>ypos</key>
-			<integer>1015</integer>
+			<integer>1130</integer>
 		</dict>
 		<key>FED5E784-7A96-4E70-BA0D-40E4C79B7C98</key>
 		<dict>
 			<key>xpos</key>
-			<integer>220</integer>
+			<integer>225</integer>
 			<key>ypos</key>
-			<integer>1255</integer>
+			<integer>1370</integer>
 		</dict>
 		<key>FF2D41F7-FB7E-4CCD-B82B-4F66FCC78F37</key>
 		<dict>
 			<key>xpos</key>
-			<integer>220</integer>
+			<integer>225</integer>
 			<key>ypos</key>
-			<integer>795</integer>
+			<integer>910</integer>
 		</dict>
 	</dict>
 	<key>variables</key>
