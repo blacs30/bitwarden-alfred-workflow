@@ -4,8 +4,6 @@
 <dict>
 	<key>bundleid</key>
 	<string>com.lisowski-development.alfred.bitwarden</string>
-	<key>category</key>
-	<string>Productivity</string>
 	<key>connections</key>
 	<dict>
 		<key>01DFFE0F-13AB-4E19-AC39-8E2177548224</key>
@@ -2240,7 +2238,7 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>266860CE-FC28-42E1-998B-229C5AEDF262</key>
 		<dict>
 			<key>xpos</key>
-			<integer>885</integer>
+			<integer>880</integer>
 			<key>ypos</key>
 			<integer>795</integer>
 		</dict>
@@ -2345,7 +2343,7 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>8C058736-CA55-492F-B2EC-8715A0266564</key>
 		<dict>
 			<key>xpos</key>
-			<integer>885</integer>
+			<integer>880</integer>
 			<key>ypos</key>
 			<integer>685</integer>
 		</dict>
@@ -2359,7 +2357,7 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 		<key>97E21CE8-441E-46A5-B193-F5F43F1D7ED3</key>
 		<dict>
 			<key>xpos</key>
-			<integer>885</integer>
+			<integer>880</integer>
 			<key>ypos</key>
 			<integer>570</integer>
 		</dict>
