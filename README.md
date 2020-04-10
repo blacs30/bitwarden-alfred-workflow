@@ -110,7 +110,7 @@ This workflow represents many many hours effort of development and testing. So i
 * `bwsync` - Syncronize bitwarden with the remote server
 * `bw <query>` Search Bitwarden vault for item containing <query>, press return to copy the password to clipboard.
 * Shift modifier can be used on `bw <query>` to copy the username.
-* Alt modifier can be used on `bw <query>` to` copy the totp (if available).
+* Alt modifier can be used on `bw <query>` to copy the totp (if available).
 * Ctrl+shift modifier can be used on `bw <query>` to open the url of an item (if available) in the default browser.
 
 ## Contributing
