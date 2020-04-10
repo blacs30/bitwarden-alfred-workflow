@@ -109,9 +109,9 @@ This workflow represents many many hours effort of development and testing. So i
 * `bwunlock` - Unlock the Bitwarden vault in case in case it is locked
 * `bwsync` - Syncronize bitwarden with the remote server
 * `bw <query>` Search Bitwarden vault for item containing <query>, press return to copy the password to clipboard.
-* Shift modifier can be used on bw <query> to copy the username.
-* Alt modifier can be used on bw <query> to copy the totp (if available).
-* Ctrl+shift modifier can be used on bw <query> to open the url of an item in the default browser.
+* Shift modifier can be used on `bw <query>` to copy the username.
+* Alt modifier can be used on `bw <query>` to` copy the totp (if available).
+* Ctrl+shift modifier can be used on `bw <query>` to open the url of an item (if available) in the default browser.
 
 ## Contributing
 
@@ -131,6 +131,7 @@ This workflow represents many many hours effort of development and testing. So i
 * Version 1.2.1
 * Version 1.2.2
 * Version 1.2.3
+* Version 1.3.1 - Added ctrl+shift modifier to open the url of an item in the default browser
 
 ## Credits
 
