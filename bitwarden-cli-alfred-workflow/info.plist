@@ -2491,9 +2491,9 @@ My thanks go out to Bitwarden for their awesome product and the new CLI!</string
 	<key>variables</key>
 	<dict>
 		<key>STATUS_MESSAGE</key>
-		<string>Unlock successful.</string>
+		<string></string>
 		<key>STATUS_MESSAGE_DESC</key>
-		<string>User: christian.niehaves@icloud.com</string>
+		<string></string>
 	</dict>
 	<key>variablesdontexport</key>
 	<array>
