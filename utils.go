@@ -1,0 +1,146 @@
+// Copyright (c) 2020 Claas Lisowski <github@lisowski-development.com>
+// MIT Licence - http://opensource.org/licenses/MIT
+
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
+	aw "github.com/deanishe/awgo"
+	"github.com/go-cmd/cmd"
+	"log"
+	"os"
+	"os/exec"
+	"strings"
+)
+
+// prints error in debug mode to console
+func printError(err error) {
+	if wf.Debug() {
+		if err != nil {
+			log.Println("[ERROR] ==> " + fmt.Sprintf("%s\n", err.Error()))
+		}
+	}
+}
+
+// prints the bytes in debug mode to console
+func printOutput(outs []byte) {
+	if wf.Debug() {
+		if len(outs) > 0 {
+			log.Printf("[DEBUG] ==> Output: %s\n", string(outs))
+		}
+	}
+}
+
+func transformToItem(input string, target interface{}) error {
+	err := json.Unmarshal([]byte(input), &target)
+	if err != nil {
+		return fmt.Errorf("Failed to unmarshall body. Err: %s", err)
+	}
+	return nil
+}
+
+func checkReturn(status cmd.Status, message string) ([]string, error) {
+	exitCode := status.Exit
+	if exitCode == 127 {
+		printError(fmt.Errorf("Exit code 127. %q not found in path %q\n", BwExec, os.Getenv("PATH")))
+		return []string{}, fmt.Errorf("%q not found in path %q\n", BwExec, os.Getenv("PATH"))
+	} else if exitCode == 126 {
+		printError(fmt.Errorf("Exit code 126. %q has wrong permissions. Must be executable.\n", BwExec))
+		return []string{}, fmt.Errorf("%q has wrong permissions. Must be executable.\n", BwExec)
+	} else if exitCode == 1 {
+		printError(fmt.Errorf("%s", status.Stderr))
+		for _, stderr := range status.Stderr {
+			if strings.Contains(stderr, "User cancelled.") {
+				printError(fmt.Errorf("%s", stderr))
+				return []string{}, fmt.Errorf("User cancelled.")
+			}
+		}
+		errorString := strings.Join(status.Stderr[:], "")
+		printError(fmt.Errorf("Exit code 1. %s Err: %s", message, errorString))
+		return []string{}, fmt.Errorf(fmt.Sprintf("%s Error:\n%s", message, errorString))
+	} else if exitCode == 0 {
+		return status.Stdout, nil
+	} else {
+		return []string{}, fmt.Errorf("Unexpected error. Exit code %d.", exitCode)
+	}
+}
+
+func runCmd(args string, message string) ([]string, error) {
+	// Start a long-running process, capture stdout and stderr
+	argSet := strings.Fields(args)
+	runCmd := cmd.NewCmd(argSet[0], argSet[1:]...)
+	status := <-runCmd.Start()
+
+	//if wf.Debug() {
+	//    // Print each line of STDOUT from Cmd
+	//    for _, line := range status.Stdout {
+	//            log.Println(line)
+	//    }
+	//}
+	return checkReturn(status, message)
+}
+
+func searchAlfred(search string) {
+	// Open Alfred
+	log.Println("Search called with argument ", search)
+	a := aw.NewAlfred()
+	err := a.Search(search)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func getConfigs(wf *aw.Workflow) (email string, sfa string, sfamode string, server string) {
+	email = alfred.GetEmail(wf)
+	sfa = alfred.GetSfa(wf)
+	sfamode = alfred.GetSfaMode(wf)
+	server = alfred.GetServer(wf)
+	return
+}
+
+func getItemsInFolderCount(folderId string, items []Item) int {
+	counter := 0
+	for _, item := range items {
+		if item.FolderId == folderId {
+			counter += 1
+		}
+	}
+	return counter
+}
+
+func commandExists(cmd string) bool {
+	_, err := exec.LookPath(cmd)
+	return err == nil
+}
+
+func map2faMode(mode string) string {
+	switch mode {
+	case "0":
+		return "Authenticator-app"
+	case "1":
+		return "Email"
+	case "2":
+		return "Duo"
+	case "3":
+		return "YubiKey"
+	case "4":
+		return "U2F"
+	}
+	return " "
+}
+
+func typeName(typeInt int) string {
+	switch typeInt {
+	case 1:
+		return "Login"
+	case 2:
+		return "SecureNote"
+	case 3:
+		return "Card"
+	case 4:
+		return "Identity"
+	}
+	return "Type Name Not Found"
+}

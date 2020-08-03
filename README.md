@@ -1,152 +1,116 @@
-# Simple Bitwarden Workflow for Alfred
+# Bitwarden Alfred Workflow
 
-Simple yet powerful integration with the Bitwarden CLI so you can now get your passwords out of your Bitwarden vault and straight into the clipboard from within Alfred.
+> Access your Bitwarden passwords, secrets, attachments and more via this powerful Alfred Workflow
 
-**Note**: Passwords with spaces at the beginning or end are _NOT_ supported
+## Features
 
-## Version 1.4.0 update - Please Read
-
-*Alfred v4.1 and newer is required*
-
------
-* Fix for Alfred version 4.1 where the selected secrets is passed to the next workflow item in a different way
-* Added ctrl+shift modifier to open the url of an item in the default browser
-
-## Version 1.3.0 update - Please Read
-
------
-* Update workflow python package to version 1.37 with support for Alfred 4
-* Add filtering support for Bitwarden folders #12
-
-**Syntax:**
-
-`bw -f folder_name search_string`
-
--- or --
-
-`bw search_string -f folder_name`
-
--- or original syntax --
-
-`bw search_string`
-
-Thank you, @rustycamper, for your contribution!
+* Completely rewritten in go
+* fast secret / item search thanks to caching (no secrets are cached only the keys/names)
+  * cache is encrypted
+* access to (almost) all object information via this workflow
+* download attachments via this workflow
+* show favicons of the websites
+* auto update
+* uses the [awgo](https://pkg.go.dev/github.com/deanishe/awgo?tab=doc) framework/library
+* many customizations possible
 
 
-## Version 1.2.4 update - Please Read
-
------
-* Uses utf-8 decoding now which fixes an issue where the json object could not be decoded and alfred bw would fail
-
-## Version 1.2.3 update - Please Read
-
------
-* Fixes an issue where spaces within the item name causes the workflow to being unable to get the password/username/totp
-* Removes newline at the end of the output
-
-Thank you, @rasmusbe, for contributing.
-
-## Version 1.2.2 update - Please Read
-
------
-Fixes an issue where spaces within the password prevent a user from login / unlock of the vault.
-
-## Version 1.2.1 update - Please Read
-
------
-Fixes an issue where the login is successful but the workflow doesn't set the marker to save it but instead returns that the vault is locked.
-
-## Version 1.2.0 update - Please Read
-
------
-
-Ladies and gents, I am happy to present v1.2.0 of the workflow.
-As this workflow was originally a fork from the LastPass CLI it is now almost completely a rewritten codebase without using AppleScript calling an external applescript file to ask for the password. That is done now via inline AppleScript in Python.
-
-All perl and main AppleScripts have been rewritten in Python.
-
-If you haven't used Bitwarden before... you are crazy and you should! Say bye to LastPass and hello to selfhosting. It is the single greatest password manager package out there :D so check it out at [https://bitwarden.com](https://bitwarden.com).
-
-## Version 1.1.0 update - Please Read
-
------
-
-Ladies and gents, I am happy to present v1.1.0 of the workflow. Before I continue, this workflow has not been developed from scratch. The LastPass CLI workflow was the start and was remodeled to fit the Bitwarden CLI. Nonetheless it was a SIGNIFICANT amount of work for me so if you like it and use it, please say thank you by donating towards my organic food. Any amount will do, whatever you feel the value is for you/your business/your time :)
-
-I have never used LastPass, I prefer to selfhost my applications. From the day I heard about Bitwarden I loved it - that was at the beginning of this year (2018).
-
-If you haven't used Bitwarden before... you are crazy and you should! Say bye to LastPass and hello to selfhosting. It is the single greatest password manager package out there :D so check it out at [https://bitwarden.com](https://bitwarden.com).
-
------
-
-## Donations
-This workflow represents many many hours effort of development and testing. So if you love the workflow, and get use out of it every day, if you would like to donate as a thank you to buy me some healthy organic food (or organic coffee), or to put towards a shiny new gadget you can [donate to me via Paypal](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=K7BXYQ3SQ76J6).
-
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=K7BXYQ3SQ76J6" target="_blank"><img src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" alt="PayPal — The safer, easier way to pay online."></a>
+> NOT tested with Alfred 3
 
 
 ## Installation
-
-1. Ensure you have Alfred installed with the Alfred Powerpack License
-2. Install Homebrew (if you do not have it already installed)
-	1. You should be able to just run the command in a terminal window (as your own user account NOT with sudo)
-	2. `ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
-	3. Alternatively visit http://brew.sh/ for further instructions.
-3. Install Bitwarden CLI command line interface
-	4. In a terminal window run
-		`brew install bitwarden-cli`
-5. Download the .alfredworkflow file
-6. Open the .alfredworkflow file to import into Alfred
-7. Run `bwsetemail yourloginemail@yourdomain.com` in Alfred to set your Bitwarden username.
-8. Run `bwsetserver https://bitwarden.example.com` in Alfred to set your Bitwarden URL. Use https://bitwarden.com for the hosted bitwarden.
+- [Download the latest release](https://github.com/blacs30/bitwarden-alfred-workflow/releases)
+- Open the downloaded file in Finder
+- Make sure that the [Bitwarden CLI](https://github.com/bitwarden/cli#downloadinstall) is installed
+- If running on macOS Catalina or later, you _**MUST**_ add Alfred to the list of security exceptions for running unsigned software. See [this guide](https://github.com/deanishe/awgo/wiki/Catalina) for instructions on how to do this.
+  - <sub>Yes, this sucks and is annoying, but there is unfortunately is no easy way around this. macOS requires a paying Developer account for proper app notarization. I'm afraid I'm not willing to pay a yearly subscription fee to Apple just so that this (free and open source) project doesn't pester macOS Gatekeeper.</sub>
 
 ## Usage
+To use, activate Alfred and type `.bw` to trigger this workflow. From there:
 
-* `bwsetemail yourname@example.com` - must be run when you first install/upgrade to version 1.0 or higher
-* `bwsetemail` - Set the Bitwarden user account email
-* `bwsetserver` - Set the Bitwarden server to connect to
-* `bwset2fa` - Enable 2FA for Bitwarden login
-* `bwset2famethod` - Set the method for the Bitwarden 2FA login (optional)
-* `bwlogin` - Log in to Bitwarden
-* `bwlogout` - Log out of Bitwarden
-* `bwunlock` - Unlock the Bitwarden vault in case in case it is locked
-* `bwsync` - Syncronize bitwarden with the remote server
-* `bw <query>` Search Bitwarden vault for item containing <query>, press return to copy the password to clipboard.
-* Shift modifier can be used on `bw <query>` to copy the username.
-* Alt modifier can be used on `bw <query>` to copy the totp (if available).
-* Ctrl+shift modifier can be used on `bw <query>` to open the url of an item (if available) in the default browser.
+- type `.bwauth` for login/logout/unlock/lock
+- type `.bwconfig` for settings/sync/workflow update/help/issue reports
+- type any search term to search for secrets/notes/identities/cards
+- modifier keys and actions are presented in the subtitle, different actions are available depending on the object type
 
-## Contributing
+## Advanced Features / Configuration
 
-1. Fork it!
-2. Create your feature branch: `git checkout -b my-new-feature`
-3. Commit your changes: `git commit -am 'Add some feature'`
-4. Push to the branch: `git push origin my-new-feature`
-5. Submit a pull request :D
+- [Fuzzy filtering](https://pkg.go.dev/github.com/deanishe/awgo/fuzzy?tab=doc) a la Sublime Text is supported
+- Configurable [workflow environment variables](https://www.alfredapp.com/help/workflows/advanced/variables/#environment)
 
-## History
+| Name                          | Comment                                                                                                                                                                                               | Default Value                                                                       |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 2FA_ENABLED                   | enables or disables 2FA for login (can be set via .bwconfig )                                                                                                                                         | true                                                                                |
+| 2FA_NODE                      | sets the mode for the 2FA (can be set via .bwconfig ), 0 app, 1, email (not tested), 2 duo (not tested), 3 yubikey (not tested), 4 U2F (not tested)                                                   | 0                                                                                   |
+| BW_EXEC                       | defines the binary/executable for the Bitwarden CLI command                                                                                                                                           | bw                                                                                  |
+| bw_keyword                    | defines the keyword which opens the Bitwarden Alfred Workflow                                                                                                                                         | .bw                                                                                 |
+| bwauth_keyword                | defines the keyword which opens the Bitwarden authentications of the Alfred Workflow                                                                                                                  | .bwauth                                                                             |
+| bwconf_keyword                | defines the keyword which opens the Bitwarden configuration/settings of the Alfred Workflow                                                                                                           | .bwconfig                                                                           |
+| CACHE_TIMEOUT                 | in minutes 1440 = 1 day                                                                                                                                                                               | 1440                                                                                |
+| EMAIL                         | the email which to use for the login via the Bitwarden CLI, will be read from the data.json of the Bitwarden CLI if present                                                                           | ""                                                                                  |
+| EMPTY_DETAIL_RESULTS          | Show all information in the detail view, also if the content is empty                                                                                                                                 | false                                                                               |
+| ICON_CACHE_ENABLED            | Download icons for login items if a URL is set                                                                                                                                                        | true                                                                                |
+| ICON_CACHE_TIMEOUT            | This defines how old the icon cache can get in minutes, if expired the Workflow will download icons again. If icons are missing the workflow will also try to download them unrelated to this timeout | 43200 (1 month)                                                                     |
+| AUTO_FETCH_ICON_CACHE_TIMEOUT | This defines how often the Workflow should check for an icon if is missing, it doesn't need to do it on every run hence this cache                                                                    | 1440 (1 day)                                                                        |
+| MAX_RESULTS                   | The number of items to display maximal in the search view                                                                                                                                             | 1000                                                                                |
+| MODIFIER_1                    | The first modifier key combination, possible options, which can be combined by comma separation, are "cmd,alt/opt,ctrl,shift,fn"                                                                      | alt                                                                                 |
+| MODIFIER_2                    | The first modifier key combination, possible options, which can be combined by comma separation, are "cmd,alt/opt,ctrl,shift,fn"                                                                      | shift                                                                               |
+| MODIFIER_3                    | The first modifier key combination, possible options, which can be combined by comma separation, are "cmd,alt/opt,ctrl,shift,fn"                                                                      | ctrl                                                                                |
+| MODIFIER_4                    | The first modifier key combination, possible options, which can be combined by comma separation, are "cmd,alt/opt,ctrl,shift,fn"                                                                      | cmd,opt                                                                             |
+| OUTPUT_FOLDER                 | The folder to which attachments should be saved when the action is triggered. Default is \$HOME/Downloads. "~" can be used as well.                                                                   | ""                                                                                  |
+| PATH                          | The PATH env variable which is used to search for executables (like the Bitwarden CLI configured with BW_EXEC, security to get and set keychain objects)                                              | /usr/bin:/usr/local/bin:/usr/local/sbin:/usr/local/share/npm/bin:/usr/bin:/usr/sbin |
+| REORDERING_DISABLED           | If set to false the items which are often selected appear further up in the results.                                                                                                                  | true                                                                                |
+| SERVER_URL                    | Set the server url if you host your own Bitwarden instance - you can also set separate domains for api,webvault etc e.g. `--api http://localhost:4000 --identity http://localhost:33656`              | https://bitwarden.com                                                               |
+| SYNC_CACHE_TIMEOUT            | This defines how old the sync cache can get, if expired the Workflow will trigger a new sync with Bitwarden                                                                                           | 1440 (1 day)                                                                        |
+| CACHE_TIMEOUT                 | This defines how old the cached items can get, if expired the Workflow will trigger a new cache refresh with Bitwarden (this does not involve a sync with the Bitwarden server)                       | 1440 (1 day)                                                                        |
 
-* Version 1.0.0 - Initial Release
-* Version 1.0.1 - Fixed logout / not logged in warning
-* Version 1.0.2 - Fixed erroring in case no username exist, catch the error correctly now.
-* Version 1.1.0
-* Version 1.2.0
-* Version 1.2.1
-* Version 1.2.2
-* Version 1.2.3
-* Version 1.3.1 - Added ctrl+shift modifier to open the url of an item in the default browser
 
-## Credits
+# Develop locally
 
-Created by [Claas Lisowski](https://lisowski-development.com). If you would like to get into contact you can do so via:
-* [@blacs30 on Twitter](http://twitter.com/blacs30)
-* [Claas Lisowski on LinkedIn](https://www.linkedin.com/in/claas-fridtjof-lisowski-558220b7/)
+1. Install alfred cli <br>
+`go get -u github.com/jason0x43/go-alfred/alfred`
 
-## License
+2. Clone [this repo](https://github.com/blacs30/bitwarden-alfred-workflow).
 
-Released under the GNU GENERAL PUBLIC LICENSE Version 2, June 1991
+3. Link the workflow directory with Alfred <br>
+`cd workflow; alfred link`
 
-## Notes
-NOTE: This Alfred Workflow is not affiliated in any way with Bitwarden. The Bitwarden trademark and logo are owned by Bitwarden.com. The Bitwarden logo and product name have been used with permission of the Bitwarden team.
+4. Install dependency and run the first build<br>
+`make build`
 
-My thanks go out to Bitwarden for their awesome product and the new CLI!
+### Colors and Icons
+
+*Light blue*
+
+Hex: #175DDC <br>
+RGB: 23,93,220
+
+*Darker blue*
+
+Hex: #134db7 <br>
+RGB: 20,81,192
+
+Get icons as pngs here https://fa2png.app/ and this is the browser https://fontawesome.com/cheatsheet
+
+
+# Licensing and Thanks
+
+The icons are based on [Bitwarden Brand](https://github.com/bitwarden/brand) , [Font Awesome](https://fontawesome.com/) and [Material Design](https://materialdesignicons.com/) Icons.
+
+Parts of the README are taken over from [alfred-aws-console-services-workflow](https://github.com/rkoval/alfred-aws-console-services-workflow)
+
+## Source that helped me to get started
+
+- [Writing Alfred workflows in Go](https://medium.com/@nikitavoloboev/writing-alfred-workflows-in-go-2a44f62dc432)
+- [Example of the awgo package] (https://github.com/deanishe/awgo/blob/master/_examples/update/main.go)
+- [awgo package](https://pkg.go.dev/github.com/deanishe/awgo?tab=doc)
+
+
+## Troubleshooting
+
+- "I'm seeing the following dialog when running the workflow"
+
+  ![image](./icons/catalina-warning.png)
+
+  Per [the installation steps](https://github.com/blacs30/bitwarden-alfred-workfloww#installation), you **_MUST_** add Alfred to the list of Developer Tool exceptions for Alfred to run any workflow that contains an executable (like this one)
+

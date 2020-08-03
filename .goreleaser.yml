@@ -1,0 +1,22 @@
+# .goreleaser.yml
+builds:
+  - env:
+      - GO111MODULE=on
+      - CGO_ENABLED=0
+    goarch:
+      - amd64
+      - arm64
+    goos:
+      - darwin
+    skip: true
+
+release:
+  extra_files:
+    - glob: ./bitwarden-alfred-workflow.alfredworkflow
+  draft: true
+
+#checksum:
+#  name_template: 'checksums.txt'
+
+changelog:
+  skip: true
