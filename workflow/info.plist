@@ -1158,7 +1158,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<key>CACHE_TIMEOUT</key>
 		<string>1440</string>
 		<key>EMAIL</key>
-		<string>test@test.com</string>
+		<string></string>
 		<key>EMPTY_DETAIL_RESULTS</key>
 		<string>false</string>
 		<key>ICON_CACHE_ENABLED</key>

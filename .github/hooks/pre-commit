@@ -7,7 +7,7 @@ if [ "$branch" = "master"  ]; then
       exit 1
 fi
 
-if $(awk -F"[<>]" '/EMAIL/ {getline;print {}' workflow/info.plist | grep -q -v @); then
+if $(awk -F"[<>]" '/EMAIL/ {getline;print $3}' workflow/info.plist | grep -q @); then
     echo "You can't commit an email address in the workflow/info.plist (Workflow config)."
     exit 1
 fi
