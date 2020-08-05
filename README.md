@@ -17,6 +17,7 @@
 
 > NOT tested with Alfred 3
 
+![Bitwarden V2 - Alfred Workflow Demo](./assets/bitwarden-v2.gif)
 
 ## Installation
 - [Download the latest release](https://github.com/blacs30/bitwarden-alfred-workflow/releases)
@@ -110,7 +111,7 @@ Parts of the README are taken over from [alfred-aws-console-services-workflow](h
 
 - "I'm seeing the following dialog when running the workflow"
 
-  ![image](./icons/catalina-warning.png)
+  ![image](./assets/catalina-warning.png)
 
   Per [the installation steps](https://github.com/blacs30/bitwarden-alfred-workfloww#installation), you **_MUST_** add Alfred to the list of Developer Tool exceptions for Alfred to run any workflow that contains an executable (like this one)
 
