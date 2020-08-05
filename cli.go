@@ -125,7 +125,7 @@ func BitwardenAuthChecks() (loginErr error, unlockErr error) {
 	} else {
 		args = fmt.Sprintf("%s unlock %s --check --session %s", BwExec, noQuiet, token)
 	}
-	_, unlockErr = runCmd(args, NOT_LOGGED_IN_MSG)
+	_, unlockErr = runCmd(args, NOT_UNLOCKED_MSG)
 	if wf.Debug() {
 		log.Println("[ERROR] ==> ", unlockErr)
 	}

@@ -27,29 +27,29 @@ func checkReturn(status cmd.Status, message string) ([]string, error) {
 	exitCode := status.Exit
 	if exitCode == 127 {
 		if wf.Debug() {
-			log.Println("[ERROR] ==> Exit code 127. %q not found in path %q\n", BwExec, os.Getenv("PATH"))
+			log.Printf("[ERROR] ==> Exit code 127. %q not found in path %q\n", BwExec, os.Getenv("PATH"))
 		}
 		return []string{}, fmt.Errorf("%q not found in path %q\n", BwExec, os.Getenv("PATH"))
 	} else if exitCode == 126 {
 		if wf.Debug() {
-			log.Println("[ERROR] ==> Exit code 126. %q has wrong permissions. Must be executable.\n", BwExec)
+			log.Printf("[ERROR] ==> Exit code 126. %q has wrong permissions. Must be executable.\n", BwExec)
 		}
 		return []string{}, fmt.Errorf("%q has wrong permissions. Must be executable.\n", BwExec)
 	} else if exitCode == 1 {
 		if wf.Debug() {
-			log.Println("[ERROR] ==> %s", status.Stderr)
+			log.Println("[ERROR] ==> ", status.Stderr)
 		}
 		for _, stderr := range status.Stderr {
 			if strings.Contains(stderr, "User cancelled.") {
 				if wf.Debug() {
-					log.Println("[ERROR] ==> %s", stderr)
+					log.Println("[ERROR] ==> ", stderr)
 				}
 				return []string{}, fmt.Errorf("User cancelled.")
 			}
 		}
 		errorString := strings.Join(status.Stderr[:], "")
 		if wf.Debug() {
-			log.Println("[ERROR] ==> Exit code 1. %s Err: %s", message, errorString)
+			log.Printf("[ERROR] ==> Exit code 1. %s Err: %s\n", message, errorString)
 		}
 		return []string{}, fmt.Errorf(fmt.Sprintf("%s Error:\n%s", message, errorString))
 	} else if exitCode == 0 {

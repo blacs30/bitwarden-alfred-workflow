@@ -338,7 +338,7 @@ func runUnlock() {
 	}
 	// remove newline characters
 	password = strings.TrimRight(password, "\r\n")
-	log.Println(fmt.Sprintf("[ERROR] ==> first few chars of the password is %s", password[0:2]))
+	log.Println("[ERROR] ==> first few chars of the password is ", password[0:2])
 
 	// Unlock Bitwarden now
 	message = "Unlocking Bitwarden failed."
@@ -359,7 +359,7 @@ func runUnlock() {
 		log.Println(err)
 	}
 	if wf.Debug() {
-		log.Println("[ERROR] ==> first few chars of the token is %s", token[0:2])
+		log.Println("[ERROR] ==> first few chars of the token is ", token[0:2])
 	}
 	searchAlfred(BW_KEYWORD)
 	fmt.Println("Unlocked")
@@ -447,7 +447,7 @@ func runLogin() {
 		log.Println(err)
 	}
 	if wf.Debug() {
-		log.Println("[ERROR] ==> first few chars of the token is %s", token[0:2])
+		log.Println("[ERROR] ==> first few chars of the token is ", token[0:2])
 	}
 	searchAlfred(BW_KEYWORD)
 	fmt.Println("Logged In.")
