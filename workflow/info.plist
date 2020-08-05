@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>bundleid</key>
-	<string>bitwarden.cli.go</string>
+	<string>com.lisowski-development.alfred.bitwarden</string>
 	<key>connections</key>
 	<dict>
 		<key>031D762C-EF9F-4DE8-B1FC-764C1DAE4842</key>
@@ -1158,7 +1158,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<key>CACHE_TIMEOUT</key>
 		<string>1440</string>
 		<key>EMAIL</key>
-		<string>test-bw@lisowski-development.com</string>
+		<string>test@test.com</string>
 		<key>EMPTY_DETAIL_RESULTS</key>
 		<string>false</string>
 		<key>ICON_CACHE_ENABLED</key>
