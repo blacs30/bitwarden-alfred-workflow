@@ -384,7 +384,7 @@
 	<key>createdby</key>
 	<string>Claas Lisowski</string>
 	<key>description</key>
-	<string>Rewritten Bitwarden workflow in go</string>
+	<string>Get passwords, username, TOTP and more from Bitwarden</string>
 	<key>disabled</key>
 	<false/>
 	<key>name</key>
@@ -998,7 +998,15 @@
 		</dict>
 	</array>
 	<key>readme</key>
-	<string>Get secrets and other things from Bitwarden.</string>
+	<string>Get secrets and other things from Bitwarden.
+
+This workflow aims to give access to all different items from Bitwarden.
+
+Direct access is given via different modifier keys directly at the search results. Additionally it is possible to show all the details for each items.
+
+Many of the settings are easily customizable via Workflow Environment Variables.
+
+Caching of the secret/item names (not the secret values itself) are cached so that the search returns results way faster then version 1.x of the Bitwarden workflow.</string>
 	<key>uidata</key>
 	<dict>
 		<key>031D762C-EF9F-4DE8-B1FC-764C1DAE4842</key>
@@ -1150,7 +1158,7 @@
 		<key>CACHE_TIMEOUT</key>
 		<string>1440</string>
 		<key>EMAIL</key>
-		<string></string>
+		<string>test-bw@lisowski-development.com</string>
 		<key>EMPTY_DETAIL_RESULTS</key>
 		<string>false</string>
 		<key>ICON_CACHE_ENABLED</key>
@@ -1188,7 +1196,7 @@
 		<string>SERVER_URL</string>
 	</array>
 	<key>version</key>
-	<string>2.0.0</string>
+	<string>2.0.1</string>
 	<key>webaddress</key>
 	<string>https://github.com/blacs30/bitwarden-alfred-workflow</string>
 </dict>
