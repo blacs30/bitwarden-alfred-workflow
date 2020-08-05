@@ -48,6 +48,7 @@ jobs:
       - name: Copy run dependencies
         run: |
           cp -r icons ./workflow
+          cp -r assets ./workflow
           go get github.com/pschlump/markdown-cli
           markdown-cli -i README.md -o workflow/README.html
 

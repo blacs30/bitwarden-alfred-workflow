@@ -338,7 +338,7 @@ func runUnlock() {
 	}
 	// remove newline characters
 	password = strings.TrimRight(password, "\r\n")
-	printOutput([]byte(fmt.Sprintf("first few chars of the password is %s", password[0:2])))
+	log.Println(fmt.Sprintf("[ERROR] ==> first few chars of the password is %s", password[0:2]))
 
 	// Unlock Bitwarden now
 	message = "Unlocking Bitwarden failed."
@@ -358,7 +358,9 @@ func runUnlock() {
 	if err != nil {
 		log.Println(err)
 	}
-	printError(fmt.Errorf("first few chars of the token is %s", token[0:2]))
+	if wf.Debug() {
+		log.Println("[ERROR] ==> first few chars of the token is %s", token[0:2])
+	}
 	searchAlfred(BW_KEYWORD)
 	fmt.Println("Unlocked")
 }
@@ -369,7 +371,9 @@ func runLogin() {
 	email, sfa, sfaMode, _ := getConfigs(wf)
 	if email == "" {
 		searchAlfred(fmt.Sprintf("%s email", BWCONF_KEYWORD))
-		printError(fmt.Errorf("Email missing. Bitwarden not configured yet"))
+		if wf.Debug() {
+			log.Println("[ERROR] ==> Email missing. Bitwarden not configured yet")
+		}
 		wf.Fatal("No email configured.")
 	}
 
@@ -377,13 +381,17 @@ func runLogin() {
 	if loginErr == nil {
 		if unlockErr != nil {
 			searchAlfred(fmt.Sprintf("%s unlock", BWAUTH_KEYWORD))
-			printError(fmt.Errorf("Already logged in but locked."))
+			if wf.Debug() {
+				log.Println("[ERROR] ==> Already logged in but locked.")
+			}
 			wf.Fatal("Already logged in but locked")
 			return
 
 		} else {
 			searchAlfred(BW_KEYWORD)
-			printError(fmt.Errorf("Already logged in and unlocked."))
+			if wf.Debug() {
+				log.Println("[ERROR] ==> Already logged in and unlocked.")
+			}
 			wf.Fatal("Already logged in and unlocked.")
 		}
 	}
@@ -400,7 +408,7 @@ func runLogin() {
 		password = passwordReturn[0]
 	}
 
-	printOutput([]byte(fmt.Sprintf("first few chars of the password is %s", password[0:2])))
+	log.Println(fmt.Sprintf("first few chars of the password is %s", password[0:2]))
 	password = strings.TrimRight(password, "\r\n")
 
 	args := fmt.Sprintf("%s login %s %s", BwExec, email, password)
@@ -438,7 +446,9 @@ func runLogin() {
 	if err != nil {
 		log.Println(err)
 	}
-	printError(fmt.Errorf("first few chars of the token is %s", token[0:2]))
+	if wf.Debug() {
+		log.Println("[ERROR] ==> first few chars of the token is %s", token[0:2])
+	}
 	searchAlfred(BW_KEYWORD)
 	fmt.Println("Logged In.")
 }

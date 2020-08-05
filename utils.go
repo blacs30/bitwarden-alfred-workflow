@@ -15,24 +15,6 @@ import (
 	"strings"
 )
 
-// prints error in debug mode to console
-func printError(err error) {
-	if wf.Debug() {
-		if err != nil {
-			log.Println("[ERROR] ==> " + fmt.Sprintf("%s\n", err.Error()))
-		}
-	}
-}
-
-// prints the bytes in debug mode to console
-func printOutput(outs []byte) {
-	if wf.Debug() {
-		if len(outs) > 0 {
-			log.Printf("[DEBUG] ==> Output: %s\n", string(outs))
-		}
-	}
-}
-
 func transformToItem(input string, target interface{}) error {
 	err := json.Unmarshal([]byte(input), &target)
 	if err != nil {
@@ -44,25 +26,45 @@ func transformToItem(input string, target interface{}) error {
 func checkReturn(status cmd.Status, message string) ([]string, error) {
 	exitCode := status.Exit
 	if exitCode == 127 {
-		printError(fmt.Errorf("Exit code 127. %q not found in path %q\n", BwExec, os.Getenv("PATH")))
+		if wf.Debug() {
+			log.Println("[ERROR] ==> Exit code 127. %q not found in path %q\n", BwExec, os.Getenv("PATH"))
+		}
 		return []string{}, fmt.Errorf("%q not found in path %q\n", BwExec, os.Getenv("PATH"))
 	} else if exitCode == 126 {
-		printError(fmt.Errorf("Exit code 126. %q has wrong permissions. Must be executable.\n", BwExec))
+		if wf.Debug() {
+			log.Println("[ERROR] ==> Exit code 126. %q has wrong permissions. Must be executable.\n", BwExec)
+		}
 		return []string{}, fmt.Errorf("%q has wrong permissions. Must be executable.\n", BwExec)
 	} else if exitCode == 1 {
-		printError(fmt.Errorf("%s", status.Stderr))
+		if wf.Debug() {
+			log.Println("[ERROR] ==> %s", status.Stderr)
+		}
 		for _, stderr := range status.Stderr {
 			if strings.Contains(stderr, "User cancelled.") {
-				printError(fmt.Errorf("%s", stderr))
+				if wf.Debug() {
+					log.Println("[ERROR] ==> %s", stderr)
+				}
 				return []string{}, fmt.Errorf("User cancelled.")
 			}
 		}
 		errorString := strings.Join(status.Stderr[:], "")
-		printError(fmt.Errorf("Exit code 1. %s Err: %s", message, errorString))
+		if wf.Debug() {
+			log.Println("[ERROR] ==> Exit code 1. %s Err: %s", message, errorString)
+		}
 		return []string{}, fmt.Errorf(fmt.Sprintf("%s Error:\n%s", message, errorString))
 	} else if exitCode == 0 {
 		return status.Stdout, nil
 	} else {
+		if wf.Debug() {
+			log.Println("[DEBUG] Unexpected exit code: => ", exitCode)
+			// Print each line of STDOUT and STDERR from Cmd
+			for _, line := range status.Stdout {
+				log.Println("[DEBUG] Stdout: => ", line)
+			}
+			for _, line := range status.Stderr {
+				log.Println("[DEBUG] Stderr: => ", line)
+			}
+		}
 		return []string{}, fmt.Errorf("Unexpected error. Exit code %d.", exitCode)
 	}
 }
@@ -73,12 +75,6 @@ func runCmd(args string, message string) ([]string, error) {
 	runCmd := cmd.NewCmd(argSet[0], argSet[1:]...)
 	status := <-runCmd.Start()
 
-	//if wf.Debug() {
-	//    // Print each line of STDOUT from Cmd
-	//    for _, line := range status.Stdout {
-	//            log.Println(line)
-	//    }
-	//}
 	return checkReturn(status, message)
 }
 

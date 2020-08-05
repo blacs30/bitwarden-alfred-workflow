@@ -67,7 +67,7 @@ func addItemDetails(item Item, previousSearch string) {
 		wf.NewItem("Note").
 			Subtitle(fmt.Sprintf("Secure note: %s", item.Notes)).
 			Icon(iconNote).
-			Var("notification", "Trying to copy Note").
+			Var("notification", "Copy Note").
 			Var("action", "-getitem").
 			Var("action2", fmt.Sprintf("-id %s", item.Id)).
 			Arg("notes").Valid(true) // used as jsonpath
@@ -89,7 +89,7 @@ func addItemDetails(item Item, previousSearch string) {
 				wf.NewItem(fmt.Sprintf("[Field %d] %s", counter, field.Name)).
 					Subtitle(fmt.Sprintf("%q", field.Value)).
 					Icon(iconBars).
-					Var("notification", fmt.Sprintf("Trying to copy secret field:\n%s", field.Name)).
+					Var("notification", fmt.Sprintf("Copy secret field:\n%s", field.Name)).
 					Var("action", "-getitem").
 					Var("action2", fmt.Sprintf("-id %s", item.Id)).
 					Arg(fmt.Sprintf("fields[%d].value", k)). // used as jsonpath
@@ -113,7 +113,7 @@ func addItemDetails(item Item, previousSearch string) {
 				Subtitle(fmt.Sprintf("↩ or ⇥ save Attachment to %s, size %s", outputFolder, att.SizeName)).
 				Icon(iconPaperClip).
 				Valid(true).
-				Var("notification", fmt.Sprintf("Trying to save attachment to :\n%s%s", outputFolder, att.FileName)).
+				Var("notification", fmt.Sprintf("Save attachment to :\n%s%s", outputFolder, att.FileName)).
 				Var("action", "-getitem").
 				Var("action2", fmt.Sprintf("-attachment %s", att.Id)).
 				Var("action3", fmt.Sprintf("-id %s", item.Id))
@@ -188,7 +188,7 @@ func addItemDetails(item Item, previousSearch string) {
 				Subtitle(fmt.Sprintf("%q", item.Login.Password)).
 				Valid(true).
 				Icon(iconPassword).
-				Var("notification", fmt.Sprintf("Trying to copy Password for user:\n%s", item.Login.Username)).
+				Var("notification", fmt.Sprintf("Copy Password for user:\n%s", item.Login.Username)).
 				Var("action", "-getitem").
 				Var("action2", fmt.Sprintf("-id %s", item.Id)).
 				Arg("login.password") // used as jsonpath
@@ -199,7 +199,7 @@ func addItemDetails(item Item, previousSearch string) {
 				Subtitle(fmt.Sprintf("%q", item.Login.Totp)).
 				Valid(true).
 				Icon(iconUserClock).
-				Var("notification", fmt.Sprintf("Trying to copy TOTP for user:\n%s", item.Login.Username)).
+				Var("notification", fmt.Sprintf("Copy TOTP for user:\n%s", item.Login.Username)).
 				Var("action", "-getitem").
 				Var("action2", "-totp").
 				Var("action3", fmt.Sprintf("-id %s", item.Id))
@@ -232,7 +232,7 @@ func addItemDetails(item Item, previousSearch string) {
 				Subtitle(fmt.Sprintf("%q", item.Card.Number)).
 				Valid(true).
 				Icon(iconCreditCard).
-				Var("notification", fmt.Sprintf("Trying to copy Card Number:\n%s", item.Card.Number)).
+				Var("notification", fmt.Sprintf("Copy Card Number:\n%s", item.Card.Number)).
 				Var("action", "-getitem").
 				Var("action2", fmt.Sprintf("-id %s", item.Id)).
 				Arg("card.number")
@@ -242,7 +242,7 @@ func addItemDetails(item Item, previousSearch string) {
 				Subtitle(fmt.Sprintf("%q", item.Card.Code)).
 				Valid(true).
 				Icon(iconPassword).
-				Var("notification", "Trying to copy Card Security Code.").
+				Var("notification", "Copy Card Security Code.").
 				Var("action", "-getitem").
 				Var("action2", fmt.Sprintf("-id %s", item.Id)).
 				Arg("card.code")
@@ -471,7 +471,7 @@ func addItemsToWorkflow(item Item) {
 			Subtitle(fmt.Sprintf("↩ or ⇥ copy password, %s %s, %s %s %s: Show more", mod1Emoji, item.Login.Username, totp, url, mod4Emoji)).Valid(true).
 			Arg(item.Login.Username).
 			UID(item.Name).
-			Var("notification", fmt.Sprintf("Trying to copy Password for user:\n%s", item.Login.Username)).
+			Var("notification", fmt.Sprintf("Copy Password for user:\n%s", item.Login.Username)).
 			Var("action", "-getitem").
 			Var("action2", fmt.Sprintf("-id %s", item.Id)).
 			Arg("login.password").
@@ -482,7 +482,7 @@ func addItemsToWorkflow(item Item) {
 			Arg(item.Login.Username).
 			Icon(iconUser)
 		if totp != "" {
-			it1.NewModifier(mod2[0:]...).Subtitle("Trying to copy TOTP").
+			it1.NewModifier(mod2[0:]...).Subtitle("Copy TOTP").
 				Var("action", "-getitem").
 				Var("action2", "-totp").
 				Var("action3", fmt.Sprintf("-id %s", item.Id)).
@@ -539,7 +539,7 @@ func addItemsToWorkflow(item Item) {
 			Var("action2", fmt.Sprintf("-id %s", item.Id)).
 			Var("notification", fmt.Sprintf("Copied Card %s:\n%s", item.Card.Brand, item.Card.Number)).
 			Arg("card.number")
-		it3.NewModifier(mod1[0:]...).Subtitle("Trying to copy Card Security Code").
+		it3.NewModifier(mod1[0:]...).Subtitle("Copy Card Security Code").
 			Var("action", "-getitem").
 			Var("action2", fmt.Sprintf("-id %s", item.Id)).
 			Var("notification", "Copied Card Security Code").
@@ -554,7 +554,6 @@ func addItemsToWorkflow(item Item) {
 		} else {
 			it3.NewModifier(mod4[0:]...).Subtitle("Show item").
 				Var("action", fmt.Sprintf("-id %s", item.Id)).
-				Var("action2", fmt.Sprintf("-previous %s", opts.Query)).
 				Arg("").
 				Icon(iconLink)
 		}

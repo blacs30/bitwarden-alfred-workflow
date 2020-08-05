@@ -111,7 +111,9 @@ func BitwardenAuthChecks() (loginErr error, unlockErr error) {
 		args = fmt.Sprintf("%s login --check", BwExec)
 	}
 	_, loginErr = runCmd(args, NOT_LOGGED_IN_MSG)
-	printError(loginErr)
+	if wf.Debug() {
+		log.Println("[ERROR] ==> ", loginErr)
+	}
 
 	noQuiet := "--quiet"
 	if wf.Debug() {
@@ -124,7 +126,9 @@ func BitwardenAuthChecks() (loginErr error, unlockErr error) {
 		args = fmt.Sprintf("%s unlock %s --check --session %s", BwExec, noQuiet, token)
 	}
 	_, unlockErr = runCmd(args, NOT_LOGGED_IN_MSG)
-	printError(unlockErr)
+	if wf.Debug() {
+		log.Println("[ERROR] ==> ", unlockErr)
+	}
 	return
 }
 

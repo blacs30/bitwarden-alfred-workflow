@@ -22,4 +22,5 @@ coverage.txt
 *.alfredworkflow
 workflow/bitwarden-alfred-workflow
 workflow/icons
+workflow/assets
 workflow/README.html
