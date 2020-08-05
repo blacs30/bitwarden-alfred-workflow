@@ -33,3 +33,4 @@ help: ## Display this help screen
 install-hooks:
 	@mkdir -p .git/hooks
 	@cp .github/hooks/* .git/hooks
+	@chmod +x .git/hooks/*
