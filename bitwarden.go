@@ -412,7 +412,7 @@ func runLogin() {
 	password = strings.TrimRight(password, "\r\n")
 
 	args := fmt.Sprintf("%s login %s %s", BwExec, email, password)
-	if sfa == "true" {
+	if sfa {
 		display2faMode := map2faMode(sfaMode)
 		inputScript2faCode := fmt.Sprintf("osascript bitwarden-js-pw-promot.js Login %s %s false", email, display2faMode)
 		message := "Failed to get 2FA code to Login."

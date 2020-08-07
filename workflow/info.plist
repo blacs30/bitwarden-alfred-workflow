@@ -96,6 +96,19 @@
 				<false/>
 			</dict>
 		</array>
+		<key>3E2F1180-58FF-4BE9-94B8-97CADE398C33</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>0D28342D-0F9E-4BDE-8DAC-83C6819A8312</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>4BC115D2-2F84-4652-892B-3250887C4597</key>
 		<array>
 			<dict>
@@ -286,6 +299,18 @@
 				<string></string>
 				<key>sourceoutputuid</key>
 				<string>C7AE31D9-0033-44A4-889F-1030672647C0</string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>3E2F1180-58FF-4BE9-94B8-97CADE398C33</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>sourceoutputuid</key>
+				<string>00DA71F8-A629-45CA-B5BB-67AFE7C5B746</string>
 				<key>vitoclose</key>
 				<false/>
 			</dict>
@@ -571,7 +596,7 @@
 						<key>matchmode</key>
 						<integer>4</integer>
 						<key>matchstring</key>
-						<string>(-cache|-sync|-unlock|-login)</string>
+						<string>(-cache|-sync)</string>
 						<key>outputlabel</key>
 						<string>run script</string>
 						<key>uid</key>
@@ -618,6 +643,20 @@
 						<string>server and mail to keyword</string>
 						<key>uid</key>
 						<string>C7AE31D9-0033-44A4-889F-1030672647C0</string>
+					</dict>
+					<dict>
+						<key>inputstring</key>
+						<string>{var:action}</string>
+						<key>matchcasesensitive</key>
+						<false/>
+						<key>matchmode</key>
+						<integer>4</integer>
+						<key>matchstring</key>
+						<string>(-unlock|-login)</string>
+						<key>outputlabel</key>
+						<string>login and unlock</string>
+						<key>uid</key>
+						<string>00DA71F8-A629-45CA-B5BB-67AFE7C5B746</string>
 					</dict>
 				</array>
 				<key>elselabel</key>
@@ -908,6 +947,29 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string>osascript bitwarden-auth-flow.js $1 $2 $3 $4</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>3E2F1180-58FF-4BE9-94B8-97CADE398C33</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>conditions</key>
 				<array>
 					<dict>
@@ -1057,6 +1119,13 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 			<key>ypos</key>
 			<integer>515</integer>
 		</dict>
+		<key>3E2F1180-58FF-4BE9-94B8-97CADE398C33</key>
+		<dict>
+			<key>xpos</key>
+			<integer>150</integer>
+			<key>ypos</key>
+			<integer>460</integer>
+		</dict>
 		<key>4BC115D2-2F84-4652-892B-3250887C4597</key>
 		<dict>
 			<key>xpos</key>
@@ -1196,7 +1265,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<string>SERVER_URL</string>
 	</array>
 	<key>version</key>
-	<string>2.0.1</string>
+	<string>2.0.2</string>
 	<key>webaddress</key>
 	<string>https://github.com/blacs30/bitwarden-alfred-workflow</string>
 </dict>

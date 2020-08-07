@@ -13,6 +13,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 )
 
 var (
@@ -293,6 +294,10 @@ func runAuth() {
 	if opts.Query == "" {
 		wf.Configure(aw.SuppressUIDs(true))
 	}
+	email, sfa, sfaMode, _ := getConfigs(wf)
+	if !sfa {
+		sfaMode = -1
+	}
 
 	log.Printf("filtering auth config %q ...", opts.Query)
 
@@ -301,7 +306,8 @@ func runAuth() {
 		Valid(true).
 		UID("login").
 		Icon(iconOn).
-		Var("action", "-login")
+		Var("action", "-login").
+		Arg("login", email, fmt.Sprintf("%d", sfaMode), map2faMode(sfaMode))
 
 	wf.NewItem("Logout").
 		Subtitle("Logout from Bitwarden").
@@ -315,7 +321,8 @@ func runAuth() {
 		UID("unlock").
 		Valid(true).
 		Icon(iconOn).
-		Var("action", "-unlock")
+		Var("action", "-unlock").
+		Arg("unlock", email)
 
 	wf.NewItem("Lock").
 		Subtitle("Lock Bitwarden").
@@ -371,7 +378,11 @@ func runSetConfigs() {
 			if err != nil {
 				wf.FatalError(err)
 			}
-			sfamode := map2faMode(value)
+			sfaModeValue, err := strconv.Atoi(value)
+			if err != nil {
+				log.Println(err)
+			}
+			sfamode := map2faMode(sfaModeValue)
 			fmt.Printf("DONE: Set %s to \n%s", mode, sfamode)
 			searchAlfred(BWCONF_KEYWORD)
 			return
@@ -443,7 +454,7 @@ func runSfa() {
 			Arg("0")
 	} else if opts.Id == "ON/OFF" {
 		wf.NewItem("ON/OFF: Enable 2FA for Bitwarden").
-			Subtitle(fmt.Sprintf("Currently set to: %q", sfa)).
+			Subtitle(fmt.Sprintf("Currently set to: %t", sfa)).
 			UID("sfaon").
 			Valid(true).
 			Icon(iconOn).
@@ -453,7 +464,7 @@ func runSfa() {
 			Arg("true")
 
 		wf.NewItem("ON/OFF: Disable 2FA for Bitwarden").
-			Subtitle(fmt.Sprintf("Currently set to: %q", sfa)).
+			Subtitle(fmt.Sprintf("Currently set to: %t", sfa)).
 			UID("sfaoff").
 			Valid(true).
 			Icon(iconOff).
@@ -525,6 +536,11 @@ func runSearch(folderSearch bool, itemId string) {
 	if wf.Cache.Expired(CACHE_NAME, maxCacheAge) || wf.Cache.Expired(FOLDER_CACHE_NAME, maxCacheAge) {
 		wf.Rerun(0.3)
 		if !wf.IsRunning("cache") {
+			email, sfa, sfaMode, _ := getConfigs(wf)
+			if !sfa {
+				sfaMode = -1
+			}
+
 			// check if logged in or locked first
 			loginErr, unlockErr := BitwardenAuthChecks()
 			if loginErr != nil {
@@ -534,7 +550,8 @@ func runSearch(folderSearch bool, itemId string) {
 					Valid(true).
 					UID("login").
 					Icon(iconOn).
-					Var("action", "-login")
+					Var("action", "-login").
+					Arg("login", email, fmt.Sprintf("%d", sfaMode), map2faMode(sfaMode))
 				wf.NewWarningItem("Not logged in to Bitwarden.", "Need to login first.")
 				wf.SendFeedback()
 				return
@@ -546,7 +563,8 @@ func runSearch(folderSearch bool, itemId string) {
 					Valid(true).
 					UID("unlock").
 					Icon(iconOn).
-					Var("action", "-unlock")
+					Var("action", "-unlock").
+					Arg("unlock", email)
 				wf.NewWarningItem("Bitwarden is locked.", "Need to unlock first.")
 				wf.SendFeedback()
 				return

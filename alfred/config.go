@@ -127,12 +127,12 @@ func GetEmail(wf *aw.Workflow) string {
     return getEmail
 }
 
-func GetSfa(wf *aw.Workflow) string {
-    return wf.Config.GetString(sfa)
+func GetSfa(wf *aw.Workflow) bool {
+    return wf.Config.GetBool(sfa, true)
 }
 
-func GetSfaMode(wf *aw.Workflow) string {
-    return wf.Config.GetString(sfaMode)
+func GetSfaMode(wf *aw.Workflow) int {
+    return wf.Config.GetInt(sfaMode, 0)
 }
 
 //// Modifiers

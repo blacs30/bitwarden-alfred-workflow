@@ -88,7 +88,7 @@ func searchAlfred(search string) {
 	}
 }
 
-func getConfigs(wf *aw.Workflow) (email string, sfa string, sfamode string, server string) {
+func getConfigs(wf *aw.Workflow) (email string, sfa bool, sfamode int, server string) {
 	email = alfred.GetEmail(wf)
 	sfa = alfred.GetSfa(wf)
 	sfamode = alfred.GetSfaMode(wf)
@@ -111,17 +111,17 @@ func commandExists(cmd string) bool {
 	return err == nil
 }
 
-func map2faMode(mode string) string {
+func map2faMode(mode int) string {
 	switch mode {
-	case "0":
+	case 0:
 		return "Authenticator-app"
-	case "1":
+	case 1:
 		return "Email"
-	case "2":
+	case 2:
 		return "Duo"
-	case "3":
+	case 3:
 		return "YubiKey"
-	case "4":
+	case 4:
 		return "U2F"
 	}
 	return " "

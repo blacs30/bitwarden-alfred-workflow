@@ -156,7 +156,7 @@ func run() {
 	//}
 
 	email, sfaEnabled, sfaMode, server := getConfigs(wf)
-	allConfigs := []string{"email:", email, "2FA enabled:", sfaEnabled, "2FA Mode:", map2faMode(sfaMode), "Server:", server}
+	allConfigs := []string{"email:", email, "2FA enabled:", fmt.Sprintf("%t",sfaEnabled), "2FA Mode:", map2faMode(sfaMode), "Server:", server}
 	log.Printf("%#v", opts)
 	if wf.Debug() {
 		log.Printf("args=%#v => %#v", wf.Args(), cli.Args())
