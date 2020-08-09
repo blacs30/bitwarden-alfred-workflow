@@ -427,7 +427,7 @@ func runLogin() {
 		if err != nil {
 			wf.Fatalf("Error reading password, %s", err)
 		}
-		args = fmt.Sprintf("%s login %s %s --raw --method %s --code %s", BwExec, email, password, sfaMode, sfaCode)
+		args = fmt.Sprintf("%s login %s %s --raw --method %d --code %s", BwExec, email, password, sfaMode, sfaCode)
 	}
 
 	message = "Login to Bitwarden failed."
