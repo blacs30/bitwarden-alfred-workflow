@@ -25,14 +25,6 @@ jobs:
       - name: Unshallow
         run: git fetch --prune --unshallow
 
-      - name: Publish Release Notes
-        uses: release-drafter/release-drafter@v5.11.0
-        with:
-            publish: true
-#            prerelease: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       -
         name: "Validates GO releaser config"
         uses: "docker://goreleaser/goreleaser:latest"
