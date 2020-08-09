@@ -403,7 +403,7 @@ func runSfa() {
 	sfa := alfred.GetSfa(wf)
 
 	if opts.Id == "Use" {
-		wf.NewItem("Use U2F").
+		wf.NewItem("Use U2F (untested)").
 			Subtitle(fmt.Sprintf("Currently set to: %q", sfamode)).
 			UID("u2f").
 			Valid(true).
@@ -413,7 +413,7 @@ func runSfa() {
 			Var("action2", "2famode").
 			Arg("4")
 
-		wf.NewItem("Use Yubikey").
+		wf.NewItem("Use Yubikey (untested)").
 			Subtitle(fmt.Sprintf("Currently set to: %q", sfamode)).
 			UID("u2f").
 			Valid(true).
@@ -423,7 +423,7 @@ func runSfa() {
 			Var("action2", "2famode").
 			Arg("3")
 
-		wf.NewItem("Use Duo").
+		wf.NewItem("Use Duo (untested)").
 			Subtitle(fmt.Sprintf("Currently set to: %q", sfamode)).
 			UID("duo").
 			Valid(true).
@@ -433,7 +433,7 @@ func runSfa() {
 			Var("action2", "2famode").
 			Arg("2")
 
-		wf.NewItem("Use Email (not supported at the moment)").
+		wf.NewItem("Use Email").
 			Subtitle(fmt.Sprintf("Currently set to: %q", sfamode)).
 			UID("email").
 			Valid(true).
