@@ -113,7 +113,9 @@ func BitwardenAuthChecks() (loginErr error, unlockErr error) {
 	}
 	_, loginErr = runCmd(args, NOT_LOGGED_IN_MSG)
 	if wf.Debug() {
-		log.Println("[ERROR] ==> ", loginErr)
+		if loginErr != nil {
+			log.Println("[ERROR] ==> ", loginErr)
+		}
 	}
 
 	noQuiet := "--quiet"
@@ -128,7 +130,9 @@ func BitwardenAuthChecks() (loginErr error, unlockErr error) {
 	}
 	_, unlockErr = runCmd(args, NOT_UNLOCKED_MSG)
 	if wf.Debug() {
-		log.Println("[ERROR] ==> ", unlockErr)
+		if unlockErr != nil {
+			log.Println("[ERROR] ==> ", unlockErr)
+		}
 	}
 	return
 }
@@ -594,12 +598,21 @@ func runSearch(folderSearch bool, itemId string) {
 		runSearchFolder(items, folders)
 	}
 
+	autoFetchCache := false
+	if wf.Cache.Expired(AUTO_FETCH_CACHE, autoFetchIconMaxCacheAge) || !wf.Cache.Exists(AUTO_FETCH_CACHE) {
+		autoFetchCache = true
+		err := wf.Cache.Store(AUTO_FETCH_CACHE, []byte(string("auto-fetch-cache")))
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
 	if itemId != "" && !folderSearch {
 		log.Printf(`showing items for id "%s" ...`, itemId)
 		// Add item to for itemId
 		for _, item := range items {
 			if item.Id == itemId {
-				addItemDetails(item, opts.Previous)
+				addItemDetails(item, opts.Previous, autoFetchCache)
 
 				if opts.Query != "" {
 					log.Printf(`searching for "%s" ...`, opts.Query)
@@ -626,11 +639,11 @@ func runSearch(folderSearch bool, itemId string) {
 
 		for _, item := range items {
 			if item.FolderId == itemId {
-				addItemsToWorkflow(item)
+				addItemsToWorkflow(item, autoFetchCache)
 			}
 			if itemId == "null" {
 				if item.FolderId == "" {
-					addItemsToWorkflow(item)
+					addItemsToWorkflow(item, autoFetchCache)
 				}
 			}
 		}
@@ -652,7 +665,7 @@ func runSearch(folderSearch bool, itemId string) {
 
 		log.Printf("Number of items %d", len(items))
 		for _, item := range items {
-			addItemsToWorkflow(item)
+			addItemsToWorkflow(item, autoFetchCache)
 		}
 	}
 

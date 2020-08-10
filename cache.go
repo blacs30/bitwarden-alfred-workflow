@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
 	"io"
 	"log"
 	"net/http"
@@ -10,7 +11,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
 	aw "github.com/deanishe/awgo"
 	"github.com/jpillora/go-tld"
 	"github.com/jychri/tilde"
@@ -131,14 +131,15 @@ func popuplateCacheItems(items []Item) {
 		cacheItems = append(cacheItems, tempItem)
 	}
 
-	if alfred.GetIconCacheEnabled(wf) && (wf.Data.Expired(ICON_CACHE_NAME, iconMaxCacheAge) || !wf.Data.Exists(ICON_CACHE_NAME)) {
-		getIcon(wf)
-	}
 	data, err := json.Marshal(cacheItems)
 	if err != nil {
 		log.Println(err)
 	}
 	Encrypt(data)
+
+	if alfred.GetIconCacheEnabled(wf) && (wf.Data.Expired(ICON_CACHE_NAME, iconMaxCacheAge) || !wf.Data.Exists(ICON_CACHE_NAME)) {
+		getIcon(wf)
+	}
 }
 
 func getIcon(workflow *aw.Workflow) {
@@ -190,7 +191,9 @@ func DownloadIcon(urlMap map[string]string, outputFolder string) {
 			url = fmt.Sprintf("https://icons.duckduckgo.com/ip3/%s.ico", url)
 		}
 		filePath := fmt.Sprintf("%s/%s.png", outputFolder, id)
-		if _, err := os.Stat(filePath); err != nil {
+		if _, err := os.Stat(filePath); err == nil {
+			log.Print("Skip downloading icon for url, most likely exists already: ", url)
+		} else {
 			err = DownloadFile(filePath, url)
 			if err != nil {
 				log.Print("Download icon error: ", err)
@@ -237,7 +240,6 @@ func runGetIcons(url string, id string) {
 		}
 		searchAlfred(BW_KEYWORD)
 		return
-
 	}
 
 	urlIdMap := make(map[string]string)
@@ -252,12 +254,11 @@ func runGetIcons(url string, id string) {
 			if err := json.Unmarshal(data, &items); err != nil {
 				log.Printf("Couldn't load the items cache, error: %s", err)
 			}
-		}
-
-		for _, item := range items {
-			if item.Type == 1 {
-				if len(item.Login.Uris) > 0 {
-					urlIdMap[item.Id] = item.Login.Uris[0].Uri
+			for _, item := range items {
+				if item.Type == 1 {
+					if len(item.Login.Uris) > 0 {
+						urlIdMap[item.Id] = item.Login.Uris[0].Uri
+					}
 				}
 			}
 		}

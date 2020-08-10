@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func addItemDetails(item Item, previousSearch string) {
+func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 	wf.Configure(aw.SuppressUIDs(true))
 	wf.NewItem("Back to normal search.").
 		Subtitle("Go back one level to the normal search").Valid(true).
@@ -147,13 +147,9 @@ func addItemDetails(item Item, previousSearch string) {
 			iconPath := fmt.Sprintf("%s/%s/%s.png", wf.DataDir(), "urlicon", item.Id)
 			if _, err := os.Stat(iconPath); err != nil {
 				log.Println("Couldn't load the cached icon, error: ", err)
-				if wf.Cache.Expired(AUTO_FETCH_CACHE, autoFetchIconMaxCacheAge) {
+				if autoFetchCache {
 					log.Println("Getting icons.")
 					runGetIcons(item.Login.Uris[0].Uri, item.Id)
-					err = wf.Cache.Store(AUTO_FETCH_CACHE, []byte(string("auto-fetch-cache")))
-					if err != nil {
-						log.Println(err)
-					}
 				}
 			}
 			icon = &aw.Icon{Value: iconPath}
@@ -440,20 +436,16 @@ func addItemDetails(item Item, previousSearch string) {
 	}
 }
 
-func addItemsToWorkflow(item Item) {
+func addItemsToWorkflow(item Item, autoFetchCache bool) {
 	if item.Type == 1 {
 		icon := iconLink
 		if len(item.Login.Uris) > 0 && alfred.GetIconCacheEnabled(wf) {
 			iconPath := fmt.Sprintf("%s/%s/%s.png", wf.DataDir(), "urlicon", item.Id)
 			if _, err := os.Stat(iconPath); err != nil {
 				log.Println("Couldn't load the cached icon, error: ", err)
-				if wf.Cache.Expired(AUTO_FETCH_CACHE, autoFetchIconMaxCacheAge) {
+				if autoFetchCache {
 					log.Println("Getting icons.")
 					runGetIcons(item.Login.Uris[0].Uri, item.Id)
-					err = wf.Cache.Store(AUTO_FETCH_CACHE, []byte(string("auto-fetch-cache")))
-					if err != nil {
-						log.Println(err)
-					}
 				}
 			} else {
 				icon = &aw.Icon{Value: iconPath}
