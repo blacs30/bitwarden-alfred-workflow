@@ -596,7 +596,7 @@
 						<key>matchmode</key>
 						<integer>4</integer>
 						<key>matchstring</key>
-						<string>(-cache|-sync)</string>
+						<string>(-cache|-sync|-icons)</string>
 						<key>outputlabel</key>
 						<string>run script</string>
 						<key>uid</key>
@@ -952,7 +952,7 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>script</key>
-				<string>osascript bitwarden-auth-flow.js $1 $2 $3 $4</string>
+				<string>/usr/bin/osascript bitwarden-auth-flow.js $1 $2 $3 $4</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
@@ -1265,7 +1265,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<string>SERVER_URL</string>
 	</array>
 	<key>version</key>
-	<string>2.0.2</string>
+	<string>2.0.3</string>
 	<key>webaddress</key>
 	<string>https://github.com/blacs30/bitwarden-alfred-workflow</string>
 </dict>
