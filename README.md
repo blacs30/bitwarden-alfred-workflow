@@ -15,7 +15,7 @@
 * many customizations possible
 
 
-> NOT tested with Alfred 3
+> Requires Alfred 4.1 or newer; NOT tested with Alfred 3
 
 ![Bitwarden V2 - Alfred Workflow Demo](./assets/bitwarden-v2.gif)
 
