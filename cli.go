@@ -285,9 +285,9 @@ func runOpen() {
 	var args []string
 	args = append(args, opts.Query)
 
-	cmd := exec.Command("open", args...)
+	cmd := exec.Command("/usr/bin/open", args...)
 	if _, err := util.RunCmd(cmd); err != nil {
-		wf.Fatalf("open %q: %v", opts.Query, err)
+		wf.Fatalf("/usr/bin/open %q: %v", opts.Query, err)
 	}
 }
 
