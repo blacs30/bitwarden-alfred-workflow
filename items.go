@@ -5,7 +5,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
 	aw "github.com/deanishe/awgo"
 	"log"
 	"os"
@@ -20,7 +19,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 		Subtitle("Go back one level to the normal search").Valid(true).
 		Icon(iconLevelUp).
 		Var("action", "-search").
-		Arg(fmt.Sprintf("%s %s", BW_KEYWORD, previousSearch)).
+		Arg(fmt.Sprintf("%s %s", conf.BwKeyword, previousSearch)).
 		Var("notification", "")
 	//item.Name
 	wf.NewItem(fmt.Sprintf("Detail view for: %s", item.Name)).
@@ -33,7 +32,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 		Var("notification", fmt.Sprintf("Copied Item Id:\n%q", item.Id)).
 		Var("action", "output").Valid(true)
 	// item.OrganiztionId
-	if alfred.GetEmptyDetailResults(wf) || item.OrganizationId != "" {
+	if conf.EmptyDetailResults || item.OrganizationId != "" {
 		wf.NewItem("Organization Id").
 			Subtitle(fmt.Sprintf("%q", item.OrganizationId)).
 			Arg(item.OrganizationId).
@@ -42,7 +41,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 			Var("action", "output").Valid(true)
 	}
 	// item.FolderId
-	if alfred.GetEmptyDetailResults(wf) || item.FolderId != "" {
+	if conf.EmptyDetailResults || item.FolderId != "" {
 		wf.NewItem("Folder Id").
 			Subtitle(fmt.Sprintf("%q", item.FolderId)).
 			Arg(item.FolderId).
@@ -56,14 +55,14 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 		Icon(iconList).
 		Var("notification", fmt.Sprintf("Copied Item Id:\n%q", item.Id)).
 		Var("action", "output").Valid(true)
-	if (alfred.GetEmptyDetailResults(wf) && item.Type != 2) || (item.Type != 2 && item.Notes != "") {
+	if (conf.EmptyDetailResults && item.Type != 2) || (item.Type != 2 && item.Notes != "") {
 		wf.NewItem("Note").
 			Subtitle(item.Notes).
 			Arg(item.Notes).
 			Icon(iconNote).
 			Var("notification", fmt.Sprintf("Copied Note:\n%q", item.Notes)).
 			Var("action", "output").Valid(true)
-	} else if (item.Type == 2 && alfred.GetEmptyDetailResults(wf)) || (item.Type == 2 && item.Notes != "") {
+	} else if (item.Type == 2 && conf.EmptyDetailResults) || (item.Type == 2 && item.Notes != "") {
 		wf.NewItem("Note").
 			Subtitle(fmt.Sprintf("Secure note: %s", item.Notes)).
 			Icon(iconNote).
@@ -72,7 +71,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 			Var("action2", fmt.Sprintf("-id %s", item.Id)).
 			Arg("notes").Valid(true) // used as jsonpath
 	}
-	if alfred.GetEmptyDetailResults(wf) || item.Favorite {
+	if conf.EmptyDetailResults || item.Favorite {
 		wf.NewItem("Favorite").
 			Subtitle(fmt.Sprintf("%q", strconv.FormatBool(item.Favorite))).
 			Arg(strconv.FormatBool(item.Favorite)).
@@ -110,17 +109,17 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 			counter := k + 1
 			// it's a secret type so we need to fetch the secret from Bitwarden
 			wf.NewItem(fmt.Sprintf("[Attachment %d] %s", counter, att.FileName)).
-				Subtitle(fmt.Sprintf("↩ or ⇥ save Attachment to %s, size %s", outputFolder, att.SizeName)).
+				Subtitle(fmt.Sprintf("↩ or ⇥ save Attachment to %s, size %s", conf.OutputFolder, att.SizeName)).
 				Icon(iconPaperClip).
 				Valid(true).
-				Var("notification", fmt.Sprintf("Save attachment to :\n%s%s", outputFolder, att.FileName)).
+				Var("notification", fmt.Sprintf("Save attachment to :\n%s%s", conf.OutputFolder, att.FileName)).
 				Var("action", "-getitem").
 				Var("action2", fmt.Sprintf("-attachment %s", att.Id)).
 				Var("action3", fmt.Sprintf("-id %s", item.Id))
 		}
 	}
 	// item.CollectionIds
-	if alfred.GetEmptyDetailResults(wf) || len(item.CollectionIds) > 0 {
+	if conf.EmptyDetailResults || len(item.CollectionIds) > 0 {
 		wf.NewItem("Collection IDs").
 			Subtitle(fmt.Sprintf("%q", strings.Join(item.CollectionIds, ","))).
 			Arg(fmt.Sprintf("%q", strings.Join(item.CollectionIds, ","))).
@@ -130,7 +129,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 
 	}
 	// item.RevisionDate
-	if alfred.GetEmptyDetailResults(wf) || fmt.Sprint(item.RevisionDate) != "" {
+	if conf.EmptyDetailResults || fmt.Sprint(item.RevisionDate) != "" {
 		wf.NewItem("Revision Date").
 			Subtitle(fmt.Sprintf("%q", item.RevisionDate)).
 			Arg(fmt.Sprint(item.RevisionDate)).
@@ -143,7 +142,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 	if item.Type == 1 {
 		// get icons from cache
 		icon := iconLink
-		if len(item.Login.Uris) > 0 && alfred.GetIconCacheEnabled(wf) {
+		if len(item.Login.Uris) > 0 && conf.IconCacheEnabled {
 			iconPath := fmt.Sprintf("%s/%s/%s.png", wf.DataDir(), "urlicon", item.Id)
 			if _, err := os.Stat(iconPath); err != nil {
 				log.Println("Couldn't load the cached icon, error: ", err)
@@ -156,7 +155,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 		}
 
 		// item.Login.Username
-		if alfred.GetEmptyDetailResults(wf) || item.Login.Username != "" {
+		if conf.EmptyDetailResults || item.Login.Username != "" {
 			wf.NewItem("Username").
 				Subtitle(fmt.Sprintf("%q", item.Login.Username)).
 				Valid(true).
@@ -179,7 +178,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 			}
 		}
 		// item.Login.Password
-		if alfred.GetEmptyDetailResults(wf) || item.Login.Password != "" {
+		if conf.EmptyDetailResults || item.Login.Password != "" {
 			wf.NewItem("Password").
 				Subtitle(fmt.Sprintf("%q", item.Login.Password)).
 				Valid(true).
@@ -214,7 +213,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", fmt.Sprintf("Copied Password Revision Date:\n%q", fmt.Sprint(item.Login.PasswordRevisionDate)))
 		}
 	} else if item.Type == 3 {
-		if alfred.GetEmptyDetailResults(wf) || item.Card.CardHolderName != "" {
+		if conf.EmptyDetailResults || item.Card.CardHolderName != "" {
 			wf.NewItem("Card Holder Name").
 				Subtitle(fmt.Sprintf("%q", item.Card.CardHolderName)).
 				Valid(true).
@@ -223,7 +222,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", fmt.Sprintf("Copied Card Holder Name:\n%s", item.Card.CardHolderName)).
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Card.Number != "" {
+		if conf.EmptyDetailResults || item.Card.Number != "" {
 			wf.NewItem("Card Number").
 				Subtitle(fmt.Sprintf("%q", item.Card.Number)).
 				Valid(true).
@@ -233,7 +232,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("action2", fmt.Sprintf("-id %s", item.Id)).
 				Arg("card.number")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Card.Code != "" {
+		if conf.EmptyDetailResults || item.Card.Code != "" {
 			wf.NewItem("Card Security Code").
 				Subtitle(fmt.Sprintf("%q", item.Card.Code)).
 				Valid(true).
@@ -243,7 +242,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("action2", fmt.Sprintf("-id %s", item.Id)).
 				Arg("card.code")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Card.Brand != "" {
+		if conf.EmptyDetailResults || item.Card.Brand != "" {
 			wf.NewItem("Card Brand").
 				Subtitle(fmt.Sprintf("%q", item.Card.Brand)).
 				Valid(true).
@@ -252,7 +251,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", fmt.Sprintf("Copied Card Brand:\n%s", item.Card.Brand)).
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Card.ExpMonth != "" {
+		if conf.EmptyDetailResults || item.Card.ExpMonth != "" {
 			wf.NewItem("Expiry Month").
 				Subtitle(fmt.Sprintf("%q", item.Card.ExpMonth)).
 				Valid(true).
@@ -261,7 +260,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", fmt.Sprintf("Copied Card Expiry Month:\n%s", item.Card.ExpMonth)).
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Card.ExpYear != "" {
+		if conf.EmptyDetailResults || item.Card.ExpYear != "" {
 			wf.NewItem("Expiry Year").
 				Subtitle(fmt.Sprintf("%q", item.Card.ExpYear)).
 				Valid(true).
@@ -271,7 +270,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("action", "output")
 		}
 	} else if item.Type == 4 {
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Title != "" {
+		if conf.EmptyDetailResults || item.Identity.Title != "" {
 			wf.NewItem("Title").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Title)).
 				Valid(true).
@@ -280,7 +279,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied title.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.FirstName != "" {
+		if conf.EmptyDetailResults || item.Identity.FirstName != "" {
 			wf.NewItem("Firstname").
 				Subtitle(fmt.Sprintf("%q", item.Identity.FirstName)).
 				Valid(true).
@@ -289,7 +288,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied fistname.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.MiddleName != "" {
+		if conf.EmptyDetailResults || item.Identity.MiddleName != "" {
 			wf.NewItem("Middlename").
 				Subtitle(fmt.Sprintf("%q", item.Identity.MiddleName)).
 				Valid(true).
@@ -298,7 +297,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied middlename.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.LastName != "" {
+		if conf.EmptyDetailResults || item.Identity.LastName != "" {
 			wf.NewItem("Lastname").
 				Subtitle(fmt.Sprintf("%q", item.Identity.LastName)).
 				Valid(true).
@@ -307,7 +306,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied lastname.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Address1 != "" {
+		if conf.EmptyDetailResults || item.Identity.Address1 != "" {
 			wf.NewItem("Address1").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Address1)).
 				Valid(true).
@@ -316,7 +315,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied address1.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Address2 != "" {
+		if conf.EmptyDetailResults || item.Identity.Address2 != "" {
 			wf.NewItem("Address2").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Address2)).
 				Valid(true).
@@ -325,7 +324,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied address2.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Address3 != "" {
+		if conf.EmptyDetailResults || item.Identity.Address3 != "" {
 			wf.NewItem("Address3").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Address3)).
 				Valid(true).
@@ -334,7 +333,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied address3.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.City != "" {
+		if conf.EmptyDetailResults || item.Identity.City != "" {
 			wf.NewItem("City").
 				Subtitle(fmt.Sprintf("%q", item.Identity.City)).
 				Valid(true).
@@ -343,7 +342,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied city.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.State != "" {
+		if conf.EmptyDetailResults || item.Identity.State != "" {
 			wf.NewItem("State").
 				Subtitle(fmt.Sprintf("%q", item.Identity.State)).
 				Valid(true).
@@ -352,7 +351,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied state.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.PostalCode != "" {
+		if conf.EmptyDetailResults || item.Identity.PostalCode != "" {
 			wf.NewItem("Postal Code").
 				Subtitle(fmt.Sprintf("%q", item.Identity.PostalCode)).
 				Valid(true).
@@ -361,7 +360,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied postal code.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Country != "" {
+		if conf.EmptyDetailResults || item.Identity.Country != "" {
 			wf.NewItem("Country").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Country)).
 				Valid(true).
@@ -370,7 +369,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied country.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Company != "" {
+		if conf.EmptyDetailResults || item.Identity.Company != "" {
 			wf.NewItem("Company").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Company)).
 				Valid(true).
@@ -379,7 +378,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied company.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Email != "" {
+		if conf.EmptyDetailResults || item.Identity.Email != "" {
 			wf.NewItem("Email").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Email)).
 				Valid(true).
@@ -388,7 +387,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied email.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Phone != "" {
+		if conf.EmptyDetailResults || item.Identity.Phone != "" {
 			wf.NewItem("Phone").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Phone)).
 				Valid(true).
@@ -397,7 +396,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied phone.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Ssn != "" {
+		if conf.EmptyDetailResults || item.Identity.Ssn != "" {
 			wf.NewItem("Social Security Number").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Ssn)).
 				Valid(true).
@@ -406,7 +405,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied Social Security Number.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.Username != "" {
+		if conf.EmptyDetailResults || item.Identity.Username != "" {
 			wf.NewItem("Username").
 				Subtitle(fmt.Sprintf("%q", item.Identity.Username)).
 				Valid(true).
@@ -415,7 +414,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied Username.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.PassportNumber != "" {
+		if conf.EmptyDetailResults || item.Identity.PassportNumber != "" {
 			wf.NewItem("Passport Number").
 				Subtitle(fmt.Sprintf("%q", item.Identity.PassportNumber)).
 				Valid(true).
@@ -424,7 +423,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 				Var("notification", "Copied Passport Number.").
 				Var("action", "output")
 		}
-		if alfred.GetEmptyDetailResults(wf) || item.Identity.LicenseNumber != "" {
+		if conf.EmptyDetailResults || item.Identity.LicenseNumber != "" {
 			wf.NewItem("License Number").
 				Subtitle(fmt.Sprintf("%q", item.Identity.LicenseNumber)).
 				Valid(true).
@@ -439,7 +438,7 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 func addItemsToWorkflow(item Item, autoFetchCache bool) {
 	if item.Type == 1 {
 		icon := iconLink
-		if len(item.Login.Uris) > 0 && alfred.GetIconCacheEnabled(wf) {
+		if len(item.Login.Uris) > 0 && conf.IconCacheEnabled {
 			iconPath := fmt.Sprintf("%s/%s/%s.png", wf.DataDir(), "urlicon", item.Id)
 			if _, err := os.Stat(iconPath); err != nil {
 				log.Println("Couldn't load the cached icon, error: ", err)

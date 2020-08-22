@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
 	"io"
 	"log"
 	"net/http"
@@ -137,7 +136,7 @@ func popuplateCacheItems(items []Item) {
 	}
 	Encrypt(data)
 
-	if alfred.GetIconCacheEnabled(wf) && (wf.Data.Expired(ICON_CACHE_NAME, iconMaxCacheAge) || !wf.Data.Exists(ICON_CACHE_NAME)) {
+	if conf.IconCacheEnabled && (wf.Data.Expired(ICON_CACHE_NAME, conf.IconMaxCacheAge) || !wf.Data.Exists(ICON_CACHE_NAME)) {
 		getIcon(wf)
 	}
 }
@@ -238,7 +237,7 @@ func runGetIcons(url string, id string) {
 		} else {
 			log.Printf("Download icons job already running.")
 		}
-		searchAlfred(BW_KEYWORD)
+		searchAlfred(conf.BwKeyword)
 		return
 	}
 

@@ -38,20 +38,20 @@ func runSync(force bool, last bool) {
 	}
 
 	wf.Configure(aw.TextErrors(true))
-	email, _, _, _ := getConfigs(wf)
+	email := conf.Email
 	if email == "" {
-		searchAlfred(fmt.Sprintf("%s email", BWCONF_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s email", conf.BwconfKeyword))
 		wf.Fatal("No email configured.")
 	}
 	loginErr, unlockErr := BitwardenAuthChecks()
 	if loginErr != nil {
 		fmt.Println(NOT_LOGGED_IN_MSG)
-		searchAlfred(fmt.Sprintf("%s login", BWAUTH_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s login", conf.BwauthKeyword))
 		return
 	}
 	if unlockErr != nil {
 		fmt.Println(NOT_UNLOCKED_MSG)
-		searchAlfred(fmt.Sprintf("%s unlock", BWAUTH_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s unlock", conf.BwauthKeyword))
 		return
 	}
 
@@ -66,7 +66,7 @@ func runSync(force bool, last bool) {
 		} else {
 			log.Printf("Sync job already running.")
 		}
-		searchAlfred(BW_KEYWORD)
+		searchAlfred(conf.BwKeyword)
 		return
 
 	} else {
@@ -80,12 +80,12 @@ func runSync(force bool, last bool) {
 		output := "Synced."
 
 		if force {
-			args = fmt.Sprintf("%s sync --force --session %s", BwExec, token)
+			args = fmt.Sprintf("%s sync --force --session %s", conf.BwExec, token)
 		} else if last {
-			args = fmt.Sprintf("%s sync --last --session %s", BwExec, token)
+			args = fmt.Sprintf("%s sync --last --session %s", conf.BwExec, token)
 			message = "Get last sync date failed."
 		} else {
-			args = fmt.Sprintf("%s sync --session %s", BwExec, token)
+			args = fmt.Sprintf("%s sync --session %s", conf.BwExec, token)
 		}
 
 		result, err := runCmd(args, message)
@@ -123,7 +123,7 @@ func runLock() {
 		log.Println(err)
 	}
 
-	args := fmt.Sprintf("%s lock", BwExec)
+	args := fmt.Sprintf("%s lock", conf.BwExec)
 
 	message := "Locking Bitwarden failed."
 	log.Println("Clearing items cache.")
@@ -155,7 +155,7 @@ func getItems() {
 
 func runGetItems(token string) []Item {
 	message := "Failed to get Bitwarden items."
-	args := fmt.Sprintf("%s list items --pretty --session %s", BwExec, token)
+	args := fmt.Sprintf("%s list items --pretty --session %s", conf.BwExec, token)
 	log.Println("Read latest items...")
 
 	result, err := runCmd(args, message)
@@ -203,12 +203,12 @@ func runGetItem() {
 	// first check if Bitwarden is logged in and locked
 	loginErr, unlockErr := BitwardenAuthChecks()
 	if loginErr != nil {
-		searchAlfred(fmt.Sprintf("%s login", BWAUTH_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s login", conf.BwauthKeyword))
 		wf.Fatal(NOT_LOGGED_IN_MSG)
 		return
 	}
 	if unlockErr != nil {
-		searchAlfred(fmt.Sprintf("%s unlock", BWAUTH_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s unlock", conf.BwauthKeyword))
 		wf.Fatal(NOT_UNLOCKED_MSG)
 		return
 	}
@@ -222,11 +222,11 @@ func runGetItem() {
 	}
 
 	message := "Failed to get Bitwarden item."
-	args := fmt.Sprintf("%s get item %s --pretty --session %s", BwExec, id, token)
+	args := fmt.Sprintf("%s get item %s --pretty --session %s", conf.BwExec, id, token)
 	if totp {
-		args = fmt.Sprintf("%s get totp %s --session %s", BwExec, id, token)
+		args = fmt.Sprintf("%s get totp %s --session %s", conf.BwExec, id, token)
 	} else if attachment != "" {
-		args = fmt.Sprintf("%s get attachment %s --itemid %s --output %s --session %s --raw", BwExec, attachment, id, outputFolder, token)
+		args = fmt.Sprintf("%s get attachment %s --itemid %s --output %s --session %s --raw", conf.BwExec, attachment, id, conf.OutputFolder, token)
 	}
 	log.Println("Read item ", id)
 
@@ -268,7 +268,7 @@ func runGetItem() {
 
 func runGetFolders(token string) []Folder {
 	message := "Failed to get Bitwarden Folders."
-	args := fmt.Sprintf("%s list folders --pretty --session %s", BwExec, token)
+	args := fmt.Sprintf("%s list folders --pretty --session %s", conf.BwExec, token)
 	log.Println("Read latest folders...")
 
 	result, err := runCmd(args, message)
@@ -301,22 +301,22 @@ func runGetFolders(token string) []Folder {
 // Unlock Bitwarden
 func runUnlock() {
 	wf.Configure(aw.TextErrors(true))
-	email, _, _, _ := getConfigs(wf)
+	email := conf.Email
 	if email == "" {
-		searchAlfred(fmt.Sprintf("%s email", BWCONF_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s email", conf.BwconfKeyword))
 		wf.Fatal("No email configured.")
 	}
 
 	// first check if Bitwarden is logged in and locked
 	loginErr, unlockErr := BitwardenAuthChecks()
 	if loginErr != nil {
-		searchAlfred(fmt.Sprintf("%s login", BWAUTH_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s login", conf.BwauthKeyword))
 		wf.Fatal(NOT_LOGGED_IN_MSG)
 		return
 
 	}
 	if unlockErr == nil {
-		searchAlfred(BW_KEYWORD)
+		searchAlfred(conf.BwKeyword)
 		wf.Fatal("Already unlocked")
 		return
 
@@ -342,7 +342,7 @@ func runUnlock() {
 
 	// Unlock Bitwarden now
 	message = "Unlocking Bitwarden failed."
-	args := fmt.Sprintf("%s unlock --raw %s", BwExec, password)
+	args := fmt.Sprintf("%s unlock --raw %s", conf.BwExec, password)
 	tokenReturn, err := runCmd(args, message)
 	if err != nil {
 		wf.FatalError(err)
@@ -361,16 +361,18 @@ func runUnlock() {
 	if wf.Debug() {
 		log.Println("[ERROR] ==> first few chars of the token is ", token[0:2])
 	}
-	searchAlfred(BW_KEYWORD)
+	searchAlfred(conf.BwKeyword)
 	fmt.Println("Unlocked")
 }
 
 // Login to Bitwarden
 func runLogin() {
 	wf.Configure(aw.TextErrors(true))
-	email, sfa, sfaMode, _ := getConfigs(wf)
+	email := conf.Email
+	sfa := conf.Sfa
+	sfaMode := conf.SfaMode
 	if email == "" {
-		searchAlfred(fmt.Sprintf("%s email", BWCONF_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s email", conf.BwconfKeyword))
 		if wf.Debug() {
 			log.Println("[ERROR] ==> Email missing. Bitwarden not configured yet")
 		}
@@ -380,7 +382,7 @@ func runLogin() {
 	loginErr, unlockErr := BitwardenAuthChecks()
 	if loginErr == nil {
 		if unlockErr != nil {
-			searchAlfred(fmt.Sprintf("%s unlock", BWAUTH_KEYWORD))
+			searchAlfred(fmt.Sprintf("%s unlock", conf.BwauthKeyword))
 			if wf.Debug() {
 				log.Println("[ERROR] ==> Already logged in but locked.")
 			}
@@ -388,7 +390,7 @@ func runLogin() {
 			return
 
 		} else {
-			searchAlfred(BW_KEYWORD)
+			searchAlfred(conf.BwKeyword)
 			if wf.Debug() {
 				log.Println("[ERROR] ==> Already logged in and unlocked.")
 			}
@@ -411,7 +413,7 @@ func runLogin() {
 	log.Println(fmt.Sprintf("first few chars of the password is %s", password[0:2]))
 	password = strings.TrimRight(password, "\r\n")
 
-	args := fmt.Sprintf("%s login %s %s", BwExec, email, password)
+	args := fmt.Sprintf("%s login %s %s", conf.BwExec, email, password)
 	if sfa {
 		display2faMode := map2faMode(sfaMode)
 		inputScript2faCode := fmt.Sprintf("osascript bitwarden-js-pw-promot.js Login %s %s false", email, display2faMode)
@@ -427,7 +429,7 @@ func runLogin() {
 		if err != nil {
 			wf.Fatalf("Error reading password, %s", err)
 		}
-		args = fmt.Sprintf("%s login %s %s --raw --method %d --code %s", BwExec, email, password, sfaMode, sfaCode)
+		args = fmt.Sprintf("%s login %s %s --raw --method %d --code %s", conf.BwExec, email, password, sfaMode, sfaCode)
 	}
 
 	message = "Login to Bitwarden failed."
@@ -449,7 +451,7 @@ func runLogin() {
 	if wf.Debug() {
 		log.Println("[ERROR] ==> first few chars of the token is ", token[0:2])
 	}
-	searchAlfred(BW_KEYWORD)
+	searchAlfred(conf.BwKeyword)
 	fmt.Println("Logged In.")
 }
 
@@ -462,7 +464,7 @@ func runLogout() {
 		log.Println(err)
 	}
 
-	args := fmt.Sprintf("%s logout", BwExec)
+	args := fmt.Sprintf("%s logout", conf.BwExec)
 
 	log.Println("Clearing items cache.")
 	err = wf.ClearCache()
@@ -493,20 +495,20 @@ func runCache() {
 	}
 
 	wf.Configure(aw.TextErrors(true))
-	email, _, _, _ := getConfigs(wf)
+	email := conf.Email
 	if email == "" {
-		searchAlfred(fmt.Sprintf("%s email", BWCONF_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s email", conf.BwconfKeyword))
 		wf.Fatal("No email configured.")
 	}
 	loginErr, unlockErr := BitwardenAuthChecks()
 	if loginErr != nil {
 		fmt.Println(NOT_LOGGED_IN_MSG)
-		searchAlfred(fmt.Sprintf("%s login", BWAUTH_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s login", conf.BwauthKeyword))
 		return
 	}
 	if unlockErr != nil {
 		fmt.Println(NOT_UNLOCKED_MSG)
-		searchAlfred(fmt.Sprintf("%s unlock", BWAUTH_KEYWORD))
+		searchAlfred(fmt.Sprintf("%s unlock", conf.BwauthKeyword))
 		return
 	}
 
@@ -521,7 +523,7 @@ func runCache() {
 		} else {
 			log.Printf("Cache job already running.")
 		}
-		searchAlfred(BW_KEYWORD)
+		searchAlfred(conf.BwKeyword)
 		return
 
 	}

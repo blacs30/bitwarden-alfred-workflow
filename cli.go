@@ -107,9 +107,9 @@ Options:
 }
 
 func BitwardenAuthChecks() (loginErr error, unlockErr error) {
-	args := fmt.Sprintf("%s login --quiet --check", BwExec)
+	args := fmt.Sprintf("%s login --quiet --check", conf.BwExec)
 	if wf.Debug() {
-		args = fmt.Sprintf("%s login --check", BwExec)
+		args = fmt.Sprintf("%s login --check", conf.BwExec)
 	}
 	_, loginErr = runCmd(args, NOT_LOGGED_IN_MSG)
 	if wf.Debug() {
@@ -124,9 +124,9 @@ func BitwardenAuthChecks() (loginErr error, unlockErr error) {
 	}
 	token, err := alfred.GetToken(wf)
 	if err != nil {
-		args = fmt.Sprintf("%s unlock %s --check", BwExec, noQuiet)
+		args = fmt.Sprintf("%s unlock %s --check", conf.BwExec, noQuiet)
 	} else {
-		args = fmt.Sprintf("%s unlock %s --check --session %s", BwExec, noQuiet, token)
+		args = fmt.Sprintf("%s unlock %s --check --session %s", conf.BwExec, noQuiet, token)
 	}
 	_, unlockErr = runCmd(args, NOT_UNLOCKED_MSG)
 	if wf.Debug() {
@@ -141,15 +141,15 @@ func BitwardenAuthChecks() (loginErr error, unlockErr error) {
 func runConfig() {
 
 	// prevent Alfred from re-ordering results
-	reordering := alfred.GetReorderingDisabled(wf)
+	reordering := conf.ReorderingDisabled
 	if opts.Query == "" || reordering {
 		wf.Configure(aw.SuppressUIDs(true))
 	}
 
 	// get current email
 	log.Println("Getting email from config.")
-	email := alfred.GetEmail(wf)
-	server := alfred.GetServer(wf)
+	email := conf.Email
+	server := conf.Server
 
 	log.Printf("filtering config %q ...", opts.Query)
 
@@ -298,7 +298,9 @@ func runAuth() {
 	if opts.Query == "" {
 		wf.Configure(aw.SuppressUIDs(true))
 	}
-	email, sfa, sfaMode, _ := getConfigs(wf)
+	email := conf.Email
+	sfa := conf.Sfa
+	sfaMode := conf.SfaMode
 	if !sfa {
 		sfaMode = -1
 	}
@@ -364,7 +366,7 @@ func runSetConfigs() {
 					value = fmt.Sprintf("%s %s", value, cli.Arg(i))
 				}
 			}
-			command := fmt.Sprintf("%s config server %s", BwExec, value)
+			command := fmt.Sprintf("%s config server %s", conf.BwExec, value)
 			message := fmt.Sprintf("Unable to set Bitwarden server %s", value)
 			_, err := runCmd(command, message)
 
@@ -388,14 +390,14 @@ func runSetConfigs() {
 			}
 			sfamode := map2faMode(sfaModeValue)
 			fmt.Printf("DONE: Set %s to \n%s", mode, sfamode)
-			searchAlfred(BWCONF_KEYWORD)
+			searchAlfred(conf.BwconfKeyword)
 			return
 		}
 		if err != nil {
 			wf.FatalError(err)
 		}
 		fmt.Printf("DONE: Set %s to: \n%s", mode, value)
-		searchAlfred(BWCONF_KEYWORD)
+		searchAlfred(conf.BwconfKeyword)
 	}
 }
 
@@ -403,8 +405,8 @@ func runSetConfigs() {
 func runSfa() {
 	wf.Configure(aw.TextErrors(true))
 
-	sfamode := map2faMode(alfred.GetSfaMode(wf))
-	sfa := alfred.GetSfa(wf)
+	sfamode := map2faMode(conf.SfaMode)
+	sfa := conf.Sfa
 
 	if opts.Id == "Use" {
 		wf.NewItem("Use U2F (untested)").
@@ -487,13 +489,12 @@ func runSfa() {
 
 // Filter Bitwarden secrets in Alfred
 func runSearch(folderSearch bool, itemId string) {
-	reordering := alfred.GetReorderingDisabled(wf)
+	reordering := conf.ReorderingDisabled
 	if reordering {
 		wf.Configure(aw.SuppressUIDs(true))
 	}
 
-	maxResults := alfred.GetMaxResults
-	wf.Configure(aw.MaxResults(maxResults(wf)))
+	wf.Configure(aw.MaxResults(conf.MaxResults))
 
 	// Load data
 	var items []Item
@@ -516,14 +517,14 @@ func runSearch(folderSearch bool, itemId string) {
 	}
 
 	// Check the sync cache, if it expired or doesn't exist do a sync.
-	if wf.Cache.Expired(SYNC_CACH_NAME, syncMaxCacheAge) || !wf.Cache.Exists(SYNC_CACH_NAME) {
+	if wf.Cache.Expired(SYNC_CACH_NAME, conf.SyncMaxCacheAge) || !wf.Cache.Exists(SYNC_CACH_NAME) {
 		if !wf.IsRunning("sync") {
 			cmd := exec.Command(os.Args[0], "-sync", "-force")
 			log.Println("Sync cmd: ", cmd)
 			if err := wf.RunInBackground("sync", cmd); err != nil {
 				wf.FatalError(err)
 			}
-			searchAlfred(BW_KEYWORD)
+			searchAlfred(conf.BwKeyword)
 			return
 		} else {
 			log.Printf("Sync job already running.")
@@ -537,10 +538,12 @@ func runSearch(folderSearch bool, itemId string) {
 	// If the cache has expired, set Rerun (which tells Alfred to re-run the
 	// workflow), and start the background update process if it isn't already
 	// running.
-	if wf.Cache.Expired(CACHE_NAME, maxCacheAge) || wf.Cache.Expired(FOLDER_CACHE_NAME, maxCacheAge) {
+	if wf.Cache.Expired(CACHE_NAME, conf.MaxCacheAge) || wf.Cache.Expired(FOLDER_CACHE_NAME, conf.MaxCacheAge) {
 		wf.Rerun(0.3)
 		if !wf.IsRunning("cache") {
-			email, sfa, sfaMode, _ := getConfigs(wf)
+			email := conf.Email
+			sfa := conf.Sfa
+			sfaMode := conf.SfaMode
 			if !sfa {
 				sfaMode = -1
 			}
@@ -590,7 +593,7 @@ func runSearch(folderSearch bool, itemId string) {
 	}
 
 	// If iconcache enabled and the cache is expired (or doesn't exist)
-	if alfred.GetIconCacheEnabled(wf) && (wf.Data.Expired(ICON_CACHE_NAME, iconMaxCacheAge) || !wf.Data.Exists(ICON_CACHE_NAME)) {
+	if conf.IconCacheEnabled && (wf.Data.Expired(ICON_CACHE_NAME, conf.IconMaxCacheAge) || !wf.Data.Exists(ICON_CACHE_NAME)) {
 		getIcon(wf)
 	}
 
@@ -599,7 +602,7 @@ func runSearch(folderSearch bool, itemId string) {
 	}
 
 	autoFetchCache := false
-	if wf.Cache.Expired(AUTO_FETCH_CACHE, autoFetchIconMaxCacheAge) || !wf.Cache.Exists(AUTO_FETCH_CACHE) {
+	if wf.Cache.Expired(AUTO_FETCH_CACHE, conf.AutoFetchIconMaxCacheAge) || !wf.Cache.Exists(AUTO_FETCH_CACHE) {
 		autoFetchCache = true
 		err := wf.Cache.Store(AUTO_FETCH_CACHE, []byte(string("auto-fetch-cache")))
 		if err != nil {
@@ -635,7 +638,7 @@ func runSearch(folderSearch bool, itemId string) {
 			UID("").
 			Icon(iconFolder).
 			Var("action", "-search").
-			Arg(fmt.Sprintf("%s -folder %s", BW_KEYWORD, opts.Previous))
+			Arg(fmt.Sprintf("%s -folder %s", conf.BwKeyword, opts.Previous))
 
 		for _, item := range items {
 			if item.FolderId == itemId {
@@ -661,7 +664,7 @@ func runSearch(folderSearch bool, itemId string) {
 			UID("").
 			Icon(iconFolder).
 			Var("action", "-search").
-			Arg(fmt.Sprintf("%s -folder ", BW_KEYWORD))
+			Arg(fmt.Sprintf("%s -folder ", conf.BwKeyword))
 
 		log.Printf("Number of items %d", len(items))
 		for _, item := range items {
@@ -689,7 +692,7 @@ func runSearchFolder(items []Item, folders []Folder) {
 		Subtitle("Go back one level to the normal search").Valid(true).
 		UID("back").
 		Icon(iconFolder).
-		Var("action", "-search").Arg(BW_KEYWORD)
+		Var("action", "-search").Arg(conf.BwKeyword)
 
 	log.Printf("Number of folders %d", len(folders))
 	for _, folder := range folders {

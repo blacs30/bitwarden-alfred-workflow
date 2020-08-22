@@ -140,7 +140,7 @@ function setToken(password) {
     var app = Application.currentApplication()
     app.includeStandardAdditions = true
 
-    var cmd = `PATH=${PATH}; /usr/bin/security add-generic-password -s ${bundleId} -a token -w ${password} -U`
+    var cmd = `/usr/bin/security add-generic-password -s ${bundleId} -a token -w ${password} -U`
     try {
         app.doShellScript(cmd);
         return ""

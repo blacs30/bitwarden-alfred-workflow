@@ -6,7 +6,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
 	aw "github.com/deanishe/awgo"
 	"github.com/go-cmd/cmd"
 	"log"
@@ -27,14 +26,14 @@ func checkReturn(status cmd.Status, message string) ([]string, error) {
 	exitCode := status.Exit
 	if exitCode == 127 {
 		if wf.Debug() {
-			log.Printf("[ERROR] ==> Exit code 127. %q not found in path %q\n", BwExec, os.Getenv("PATH"))
+			log.Printf("[ERROR] ==> Exit code 127. %q not found in path %q\n", conf.BwExec, os.Getenv("PATH"))
 		}
-		return []string{}, fmt.Errorf("%q not found in path %q\n", BwExec, os.Getenv("PATH"))
+		return []string{}, fmt.Errorf("%q not found in path %q\n", conf.BwExec, os.Getenv("PATH"))
 	} else if exitCode == 126 {
 		if wf.Debug() {
-			log.Printf("[ERROR] ==> Exit code 126. %q has wrong permissions. Must be executable.\n", BwExec)
+			log.Printf("[ERROR] ==> Exit code 126. %q has wrong permissions. Must be executable.\n", conf.BwExec)
 		}
-		return []string{}, fmt.Errorf("%q has wrong permissions. Must be executable.\n", BwExec)
+		return []string{}, fmt.Errorf("%q has wrong permissions. Must be executable.\n", conf.BwExec)
 	} else if exitCode == 1 {
 		if wf.Debug() {
 			log.Println("[ERROR] ==> ", status.Stderr)
@@ -86,14 +85,6 @@ func searchAlfred(search string) {
 	if err != nil {
 		log.Println(err)
 	}
-}
-
-func getConfigs(wf *aw.Workflow) (email string, sfa bool, sfamode int, server string) {
-	email = alfred.GetEmail(wf)
-	sfa = alfred.GetSfa(wf)
-	sfamode = alfred.GetSfaMode(wf)
-	server = alfred.GetServer(wf)
-	return
 }
 
 func getItemsInFolderCount(folderId string, items []Item) int {

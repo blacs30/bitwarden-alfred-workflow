@@ -4,10 +4,12 @@
 package main
 
 import (
+	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
+	"github.com/kelseyhightower/envconfig"
 	"strings"
 	"time"
 
-	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
+	"log"
 
 	aw "github.com/deanishe/awgo"
 )
@@ -20,93 +22,79 @@ const (
 	ModCtrl  aw.ModKey = "ctrl"  // Alternate action for ^↩
 	ModShift aw.ModKey = "shift" // Alternate action for ⇧↩
 	ModFn    aw.ModKey = "fn"    // Alternate action for fn↩
-	// DefaultLocateInterval is how often to run locate
-	// TODO: create config object
-//	DefaultSyncInterval = 24 * time.Hour
-//
-//	defaultConfig = `# How long to cache the list of secret keys (not the values) for.
-//# default: 24h
-//#
-//# cache-age = "24h"
-//`
 )
 
 var (
-	//conf          *config
-	maxCacheAge              = 1440 * time.Minute      // 1 day
-	iconMaxCacheAge          = 30 * 1440 * time.Minute // 30 days
-	autoFetchIconMaxCacheAge = 1440 * time.Minute      // 1 days
-	syncMaxCacheAge          = 1440 * time.Minute      // 1 days
-	outputFolder             = ""
-	mod1                     []aw.ModKey
-	mod1Emoji                string
-	mod2                     []aw.ModKey
-	mod2Emoji                string
-	mod3                     []aw.ModKey
-	mod3Emoji                string
-	mod4                     []aw.ModKey
-	mod4Emoji                string
+	conf      config
+	mod1      []aw.ModKey
+	mod1Emoji string
+	mod2      []aw.ModKey
+	mod2Emoji string
+	mod3      []aw.ModKey
+	mod3Emoji string
+	mod4      []aw.ModKey
+	mod4Emoji string
 )
 
-//type config struct {
-//    // From workflow environment variables
-//    FindInterval time.Duration `env:"CACHE_AGE"`
-//}
+type config struct {
+	// From workflow environment variables
+	AutoFetchIconCacheAge    int `default:"1440" split_words:"true"`
+	AutoFetchIconMaxCacheAge time.Duration
+	BwconfKeyword            string `split_words:"true"`
+	BwauthKeyword            string `split_words:"true"`
+	BwKeyword                string `split_words:"true"`
+	BwExec                   string `split_words:"true"`
+	CacheAge                 int    `default:"1440" split_words:"true"`
+	Email                    string
+	EmptyDetailResults       bool `default:"false" split_words:"true"`
+	IconCacheAge             int  `default:"43200" split_words:"true"`
+	IconCacheEnabled         bool `default:"true" split_words:"true"`
+	IconMaxCacheAge          time.Duration
+	MaxResults               int `default:"1000" split_words:"true"`
+	MaxCacheAge              time.Duration
+	Mod1                     string `envconfig:"MODIFIER_1" default:"alt"`
+	Mod2                     string `envconfig:"MODIFIER_2" default:"shift"`
+	Mod3                     string `envconfig:"MODIFIER_3" default:"cmd"`
+	Mod4                     string `envconfig:"MODIFIER_4" default:"cmd,alt,ctrl"`
+	OutputFolder             string `default:"" split_words:"true"`
+	ReorderingDisabled       bool   `default:"true" split_words:"true"`
+	Server                   string `envconfig:"SERVER_URL" default:"https://bitwarden.com"`
+	Sfa                      bool   `envconfig:"2FA_ENABLED" default:"true"`
+	SfaMode                  int    `envconfig:"2FA_MODE" default:"0"`
+	SyncCacheAge             int    `default:"1440" split_words:"true"`
+	SyncMaxCacheAge          time.Duration
+}
 
 //// Load configuration file.
-//func loadConfig() (*config, error) {
-//
-//    defer util.Timed(time.Now(), "load config")
-//
-//    // Load workflow variables
-//    if err := wf.Config.To(conf); err != nil {
-//        return nil, err
-//    }
-//
-//    // Update depths
-//    if conf.FindInterval == 0 {
-//        conf.FindInterval = DefaultSyncInterval
-//    }
-//
-//    return conf, nil
-//}
+func loadConfig() {
+	err := envconfig.Process("", &conf)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
-func initConfig() {
-	BWCONF_KEYWORD = alfred.GetBwConfKeyword(wf)
-	BWAUTH_KEYWORD = alfred.GetBwauthKeyword(wf)
-	BW_KEYWORD = alfred.GetBwKeyword(wf)
-	BwExec = alfred.GetBwExec(wf)
+	conf.Email = alfred.GetEmail(wf, conf.Email)
+	conf.OutputFolder = alfred.GetOutputFolder(wf, conf.OutputFolder)
 
-	// get cache config
-	cacheAge := alfred.GetCacheTimeout(wf)
-	cacheAgeDuration := time.Duration(cacheAge)
-	maxCacheAge = cacheAgeDuration * time.Minute
-	iconCacheAge := alfred.GetIconCacheTimeout(wf)
-	iconCacheAgeDuration := time.Duration(iconCacheAge)
-	iconMaxCacheAge = iconCacheAgeDuration * time.Minute
-	autoFetchIconCacheAge := alfred.GetAutoFetchIconCacheTimeout(wf)
-	autoFetchIconCacheAgeDuration := time.Duration(autoFetchIconCacheAge)
-	autoFetchIconMaxCacheAge = autoFetchIconCacheAgeDuration * time.Minute
-	syncCacheAge := alfred.GetSyncCacheTimeout(wf)
-	syncCacheAgeDuration := time.Duration(syncCacheAge)
-	syncMaxCacheAge = syncCacheAgeDuration * time.Minute
-	outputFolder = alfred.GetOutputFolder(wf)
+	cacheAgeDuration := time.Duration(conf.CacheAge)
+	conf.MaxCacheAge = cacheAgeDuration * time.Minute
+	iconCacheAgeDuration := time.Duration(conf.IconCacheAge)
+	conf.IconMaxCacheAge = iconCacheAgeDuration * time.Minute
+	autoFetchIconCacheAgeDuration := time.Duration(conf.AutoFetchIconCacheAge)
+	conf.AutoFetchIconMaxCacheAge = autoFetchIconCacheAgeDuration * time.Minute
+	syncCacheAgeDuration := time.Duration(conf.SyncCacheAge)
+	conf.SyncMaxCacheAge = syncCacheAgeDuration * time.Minute
 	initModifiers()
 }
 
 func initModifiers() {
-	Modifier_1 := alfred.GetMod1(wf)
-	Modifier_2 := alfred.GetMod2(wf)
-	Modifier_3 := alfred.GetMod3(wf)
-	Modifier_4 := alfred.GetMod4(wf)
-	mod1 = getModifierKey(Modifier_1)
-	mod1Emoji = getModifierEmoji(Modifier_1)
-	mod2 = getModifierKey(Modifier_2)
-	mod2Emoji = getModifierEmoji(Modifier_2)
-	mod3 = getModifierKey(Modifier_3)
-	mod3Emoji = getModifierEmoji(Modifier_3)
-	mod4 = getModifierKey(Modifier_4)
-	mod4Emoji = getModifierEmoji(Modifier_4)
+	mod1 = getModifierKey(conf.Mod1)
+	mod1Emoji = getModifierEmoji(conf.Mod1)
+	mod2 = getModifierKey(conf.Mod2)
+	mod2Emoji = getModifierEmoji(conf.Mod2)
+	mod3 = getModifierKey(conf.Mod3)
+	mod3Emoji = getModifierEmoji(conf.Mod3)
+	mod4 = getModifierKey(conf.Mod4)
+	mod4Emoji = getModifierEmoji(conf.Mod4)
 }
 
 func getModifierKey(keys string) []aw.ModKey {

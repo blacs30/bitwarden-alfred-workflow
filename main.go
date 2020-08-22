@@ -7,6 +7,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/deanishe/awgo"
 	"github.com/deanishe/awgo/update"
 	ps "github.com/mitchellh/go-ps"
@@ -25,11 +26,11 @@ const (
 )
 
 var (
-	wf                *aw.Workflow
-	BwExec            = ""
-	BWAUTH_KEYWORD    = ""
-	BWCONF_KEYWORD    = ""
-	BW_KEYWORD        = ""
+	wf *aw.Workflow
+	//BwExec            = ""
+	//BWAUTH_KEYWORD    = ""
+	//BWCONF_KEYWORD    = ""
+	//BW_KEYWORD        = ""
 	CACHE_NAME        = "bw-items"
 	ICON_CACHE_NAME   = "icon-items"
 	FOLDER_CACHE_NAME = "bw-items-folders"
@@ -40,7 +41,7 @@ var (
 
 func init() {
 	wf = aw.New(update.GitHub(repo), aw.HelpURL(issueTrackerURL))
-	initConfig()
+	loadConfig()
 }
 
 func checkRunningProcesses(processName string) error {
@@ -155,18 +156,18 @@ func run() {
 	//    wf.Fatal("Couldn't load config. Check log file.")
 	//}
 
-	email, sfaEnabled, sfaMode, server := getConfigs(wf)
-	allConfigs := []string{"email:", email, "2FA enabled:", fmt.Sprintf("%t", sfaEnabled), "2FA Mode:", map2faMode(sfaMode), "Server:", server}
+	//email, sfaEnabled, sfaMode, server := getConfigs(wf)
+	//allConfigs := []string{"email:", email, "2FA enabled:", fmt.Sprintf("%t", sfaEnabled), "2FA Mode:", map2faMode(sfaMode), "Server:", server}
 	log.Printf("%#v", opts)
 	if wf.Debug() {
 		log.Printf("args=%#v => %#v", wf.Args(), cli.Args())
-		log.Printf("Workflow configs => %v", allConfigs)
-		//log.Print(spew.Sdump(conf))
+		//log.Printf("Workflow configs => %v", allConfigs)
+		log.Print(spew.Sdump(conf))
 	}
 
-	exists := commandExists(BwExec)
+	exists := commandExists(conf.BwExec)
 	if !exists && !opts.Open {
-		wf.NewItem(fmt.Sprintf("Error the Bitwarden command %q wasn't found.", BwExec)).
+		wf.NewItem(fmt.Sprintf("Error the Bitwarden command %q wasn't found.", conf.BwExec)).
 			Subtitle("Set \"BW_EXEC\" or \"PATH\" in the Workflow. Press ↩ or ⇥ for more info.").
 			Valid(true).
 			Arg("README.html").
@@ -177,7 +178,7 @@ func run() {
 		return
 	}
 
-	if email == "" && !opts.SetConfigs {
+	if conf.Email == "" && !opts.SetConfigs {
 		wf.NewItem("Enter your Bitwarden Email").
 			Subtitle("Email not yet set. Configure your Bitwarden login email").
 			UID("email").
@@ -187,7 +188,7 @@ func run() {
 			Var("action2", "email").
 			Var("notification", fmt.Sprintf("Set Email to: \n%s", opts.Query)).
 			Var("title", "Set Email").
-			Var("subtitle", fmt.Sprintf("Currently set to: %q (remove \"email\" from the beginning if exist)", email)).
+			Var("subtitle", fmt.Sprintf("Currently set to: %q (remove \"email\" from the beginning if exist)", conf.Email)).
 			Arg(opts.Query)
 		wf.SendFeedback()
 		return
