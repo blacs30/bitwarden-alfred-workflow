@@ -6,6 +6,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1
 	github.com/deanishe/awgo v0.26.2
 	github.com/go-cmd/cmd v1.2.1
+	github.com/jason0x43/go-alfred v0.0.0-20200121151032-9ea6c1f3044f // indirect
 	github.com/jpillora/go-tld v1.0.0
 	github.com/jychri/tilde v0.1.0
 	github.com/kelseyhightower/envconfig v1.4.0
