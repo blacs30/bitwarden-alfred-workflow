@@ -6,6 +6,7 @@ package main
 import (
 	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
 	"github.com/kelseyhightower/envconfig"
+	"os"
 	"strings"
 	"time"
 
@@ -40,9 +41,9 @@ type config struct {
 	// From workflow environment variables
 	AutoFetchIconCacheAge    int `default:"1440" split_words:"true"`
 	AutoFetchIconMaxCacheAge time.Duration
-	BwconfKeyword            string `split_words:"true"`
-	BwauthKeyword            string `split_words:"true"`
-	BwKeyword                string `split_words:"true"`
+	BwconfKeyword            string
+	BwauthKeyword            string
+	BwKeyword                string
 	BwExec                   string `split_words:"true"`
 	CacheAge                 int    `default:"1440" split_words:"true"`
 	Email                    string
@@ -57,6 +58,7 @@ type config struct {
 	Mod3                     string `envconfig:"MODIFIER_3" default:"cmd"`
 	Mod4                     string `envconfig:"MODIFIER_4" default:"cmd,alt,ctrl"`
 	OutputFolder             string `default:"" split_words:"true"`
+	Path                     string
 	ReorderingDisabled       bool   `default:"true" split_words:"true"`
 	Server                   string `envconfig:"SERVER_URL" default:"https://bitwarden.com"`
 	Sfa                      bool   `envconfig:"2FA_ENABLED" default:"true"`
@@ -83,6 +85,9 @@ func loadConfig() {
 	conf.AutoFetchIconMaxCacheAge = autoFetchIconCacheAgeDuration * time.Minute
 	syncCacheAgeDuration := time.Duration(conf.SyncCacheAge)
 	conf.SyncMaxCacheAge = syncCacheAgeDuration * time.Minute
+	conf.BwauthKeyword = os.Getenv("bwauth_keyword")
+	conf.BwconfKeyword = os.Getenv("bwconf_keyword")
+	conf.BwKeyword = os.Getenv("bw_keyword")
 	initModifiers()
 }
 
