@@ -28,6 +28,9 @@ function run(arg) {
     } else {
         var totpInt = arg[2]
         var totpStr = arg[3]
+        if(totpStr == null){
+            totpStr = " "
+        }
 
         var text = `Login to Bitwarden for user ${email}.\nPlease enter your password:`
         var response = app.displayDialog(text, {
