@@ -26,6 +26,15 @@
 - If running on macOS Catalina or later, you _**MUST**_ add Alfred to the list of security exceptions for running unsigned software. See [this guide](https://github.com/deanishe/awgo/wiki/Catalina) for instructions on how to do this.
   - <sub>Yes, this sucks and is annoying, but there is unfortunately is no easy way around this. macOS requires a paying Developer account for proper app notarization. I'm afraid I'm not willing to pay a yearly subscription fee to Apple just so that this (free and open source) project doesn't pester macOS Gatekeeper.</sub>
 
+## PATH configuration
+
+In many cases the bw executable is located in a path outside of the default system PATH.<br>
+Please configure the Alfred Worklow variables PATH accordingly.<br>
+In a normal terminal type `which bw` and copy the dirname (everything except the "bw") into the PATH workflow variable.<br>
+The best is to append it to the existing string and separate it by a colon (:)
+
+![Workflow PATH config](./assets/workflow-path-config.gif)
+
 ## Usage
 To use, activate Alfred and type `.bw` to trigger this workflow. From there:
 
