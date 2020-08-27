@@ -322,7 +322,7 @@ func runUnlock() {
 
 	}
 
-	inputScriptPassword := fmt.Sprintf("osascript bitwarden-js-pw-promot.js Unlock %s password true", email)
+	inputScriptPassword := fmt.Sprintf("/usr/bin/osascript bitwarden-js-pw-promot.js Unlock %s password true", email)
 	message := "Failed to get Password to Unlock."
 	// user needs to input pasword
 	passwordReturn, err := runCmd(inputScriptPassword, message)
@@ -398,7 +398,7 @@ func runLogin() {
 		}
 	}
 
-	inputScriptPassword := fmt.Sprintf("osascript bitwarden-js-pw-promot.js Login %s password true", email)
+	inputScriptPassword := fmt.Sprintf("/usr/bin/osascript bitwarden-js-pw-promot.js Login %s password true", email)
 	message := "Failed to get Password to Login."
 	passwordReturn, err := runCmd(inputScriptPassword, message)
 	if err != nil {
@@ -416,7 +416,7 @@ func runLogin() {
 	args := fmt.Sprintf("%s login %s %s", conf.BwExec, email, password)
 	if sfa {
 		display2faMode := map2faMode(sfaMode)
-		inputScript2faCode := fmt.Sprintf("osascript bitwarden-js-pw-promot.js Login %s %s false", email, display2faMode)
+		inputScript2faCode := fmt.Sprintf("/usr/bin/osascript bitwarden-js-pw-promot.js Login %s %s false", email, display2faMode)
 		message := "Failed to get 2FA code to Login."
 		sfacodeReturn, err := runCmd(inputScript2faCode, message)
 		sfaCode := ""

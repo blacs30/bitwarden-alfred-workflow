@@ -474,6 +474,7 @@ func addItemsToWorkflow(item Item, autoFetchCache bool) {
 			Icon(iconUser)
 		if totp != "" {
 			it1.NewModifier(mod2[0:]...).Subtitle("Copy TOTP").
+				Var("notification", fmt.Sprintf("Copy TOTP for user:\n%s", item.Login.Username)).
 				Var("action", "-getitem").
 				Var("action2", "-totp").
 				Var("action3", fmt.Sprintf("-id %s", item.Id)).
