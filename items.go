@@ -51,9 +51,9 @@ func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
 	}
 	wf.NewItem("Type").
 		Subtitle(fmt.Sprintf("%s (%d)", typeName(item.Type), item.Type)).
-		Arg(fmt.Sprint(item.Type)).
+		Arg(fmt.Sprintf("%s (%d)", typeName(item.Type), item.Type)).
 		Icon(iconList).
-		Var("notification", fmt.Sprintf("Copied Item Id:\n%q", item.Id)).
+		Var("notification", fmt.Sprintf("Copied Item Type:\n%s (%d)", typeName(item.Type), item.Type)).
 		Var("action", "output").Valid(true)
 	if (conf.EmptyDetailResults && item.Type != 2) || (item.Type != 2 && item.Notes != "") {
 		wf.NewItem("Note").
