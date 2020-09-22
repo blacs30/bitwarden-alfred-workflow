@@ -13,13 +13,13 @@ import (
 	"time"
 )
 
-func addItemDetails(item Item, previousSearch string, autoFetchCache bool) {
+func addItemDetails(item Item, autoFetchCache bool) {
 	wf.Configure(aw.SuppressUIDs(true))
 	wf.NewItem("Back to normal search.").
 		Subtitle("Go back one level to the normal search").Valid(true).
 		Icon(iconLevelUp).
 		Var("action", "-search").
-		Arg(fmt.Sprintf("%s %s", conf.BwKeyword, previousSearch)).
+		Arg(fmt.Sprintf("%s", conf.BwKeyword)).
 		Var("notification", "")
 	//item.Name
 	wf.NewItem(fmt.Sprintf("Detail view for: %s", item.Name)).
@@ -450,126 +450,250 @@ func addItemsToWorkflow(item Item, autoFetchCache bool) {
 				icon = &aw.Icon{Value: iconPath}
 			}
 		}
-		totp := fmt.Sprintf("%s *TOTP, ", mod2Emoji)
+		// Get the emoji assigned to a modifier action
+		totpEmoji, err := getTypeEmoji("totp")
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		totp := fmt.Sprintf("%s *TOTP, ", totpEmoji)
 		if len(item.Login.Totp) == 0 {
 			totp = ""
 		}
-		url := fmt.Sprintf("%s URL, ", mod3Emoji)
+		urlEmoji, err := getTypeEmoji("url")
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+		url := fmt.Sprintf("%s URL, ", urlEmoji)
 		if len(item.Login.Uris) < 1 {
 			url = ""
 		}
-		it1 := wf.NewItem(item.Name).
-			Subtitle(fmt.Sprintf("↩ or ⇥ copy password, %s %s, %s %s %s: Show more", mod1Emoji, item.Login.Username, totp, url, mod4Emoji)).Valid(true).
-			Arg(item.Login.Username).
+		itemModSet := getModifierActionRelations(item, "item1", icon, totp, url)
+		log.Printf("Item1:\n%+v", itemModSet.Item1)
+		it1 := wf.NewItem(itemModSet.Item1.NoMod.Content.Title).
+			Subtitle(itemModSet.Item1.NoMod.Content.Subtitle).Valid(true).
+			Arg(itemModSet.Item1.NoMod.Content.Arg).
 			UID(item.Name).
-			Var("notification", fmt.Sprintf("Copy Password for user:\n%s", item.Login.Username)).
-			Var("action", "-getitem").
-			Var("action2", fmt.Sprintf("-id %s", item.Id)).
-			Arg("login.password").
-			Icon(icon)
-
-		it1.NewModifier(mod1[0:]...).Subtitle("Copy Username").
-			Var("action", "output").
-			Arg(item.Login.Username).
-			Icon(iconUser)
-		if totp != "" {
-			it1.NewModifier(mod2[0:]...).Subtitle("Copy TOTP").
-				Var("notification", fmt.Sprintf("Copy TOTP for user:\n%s", item.Login.Username)).
-				Var("action", "-getitem").
-				Var("action2", "-totp").
-				Var("action3", fmt.Sprintf("-id %s", item.Id)).
-				Arg("").
-				Icon(iconUserClock)
+			Var("notification", itemModSet.Item1.NoMod.Content.Notification).
+			Var("action", itemModSet.Item1.NoMod.Content.Action).
+			Var("action2", itemModSet.Item1.NoMod.Content.Action2).
+			Var("action3", itemModSet.Item1.NoMod.Content.Action3).
+			Arg(itemModSet.Item1.NoMod.Content.Arg).
+			Icon(itemModSet.Item1.NoMod.Content.Icon)
+		if itemModSet.Item1.Mod1.ModKey != nil {
+			it1.NewModifier(itemModSet.Item1.Mod1.ModKey[0:]...).
+				Subtitle(itemModSet.Item1.Mod1.Content.Subtitle).
+				Arg(itemModSet.Item1.Mod1.Content.Arg).
+				Var("notification", itemModSet.Item1.Mod1.Content.Notification).
+				Var("action", itemModSet.Item1.Mod1.Content.Action).
+				Var("action2", itemModSet.Item1.Mod1.Content.Action2).
+				Var("action3", itemModSet.Item1.Mod1.Content.Action3).
+				Arg(itemModSet.Item1.Mod1.Content.Arg).
+				Icon(itemModSet.Item1.Mod1.Content.Icon)
 		}
-		if len(item.Login.Uris) > 0 {
-			it1.NewModifier(mod3[0:]...).Subtitle("Copy URL").
-				Var("action", "-open").
-				Arg(item.Login.Uris[0].Uri).
-				Icon(icon)
+		if itemModSet.Item1.Mod2.ModKey != nil {
+			it1.NewModifier(itemModSet.Item1.Mod2.ModKey[0:]...).
+				Subtitle(itemModSet.Item1.Mod2.Content.Subtitle).
+				Arg(itemModSet.Item1.Mod2.Content.Arg).
+				Var("notification", itemModSet.Item1.Mod2.Content.Notification).
+				Var("action", itemModSet.Item1.Mod2.Content.Action).
+				Var("action2", itemModSet.Item1.Mod2.Content.Action2).
+				Var("action3", itemModSet.Item1.Mod2.Content.Action3).
+				Arg(itemModSet.Item1.Mod2.Content.Arg).
+				Icon(itemModSet.Item1.Mod2.Content.Icon)
 		}
-		if opts.Query != "" {
-			it1.NewModifier(mod4[0:]...).Subtitle("Show item").
-				Var("action", fmt.Sprintf("-id %s", item.Id)).
-				Var("action2", fmt.Sprintf("-previous %s", opts.Query)).
-				Arg("").
-				Icon(iconList)
-
-		} else {
-			it1.NewModifier(mod4[0:]...).Subtitle("Show item").
-				Var("action", fmt.Sprintf("-id %s", item.Id)).
-				Arg("").
-				Icon(iconList)
+		if itemModSet.Item1.Mod3.ModKey != nil {
+			it1.NewModifier(itemModSet.Item1.Mod3.ModKey[0:]...).
+				Subtitle(itemModSet.Item1.Mod3.Content.Subtitle).
+				Arg(itemModSet.Item1.Mod3.Content.Arg).
+				Var("notification", itemModSet.Item1.Mod3.Content.Notification).
+				Var("action", itemModSet.Item1.Mod3.Content.Action).
+				Var("action2", itemModSet.Item1.Mod3.Content.Action2).
+				Var("action3", itemModSet.Item1.Mod3.Content.Action3).
+				Arg(itemModSet.Item1.Mod3.Content.Arg).
+				Icon(itemModSet.Item1.Mod3.Content.Icon)
+		}
+		if itemModSet.Item1.Mod4.ModKey != nil {
+			it1.NewModifier(itemModSet.Item1.Mod4.ModKey[0:]...).
+				Subtitle(itemModSet.Item1.Mod4.Content.Subtitle).
+				Arg(itemModSet.Item1.Mod4.Content.Arg).
+				Var("notification", itemModSet.Item1.Mod4.Content.Notification).
+				Var("action", itemModSet.Item1.Mod4.Content.Action).
+				Var("action2", itemModSet.Item1.Mod4.Content.Action2).
+				Var("action3", itemModSet.Item1.Mod4.Content.Action3).
+				Arg(itemModSet.Item1.Mod4.Content.Arg).
+				Icon(itemModSet.Item1.Mod4.Content.Icon)
 		}
 	} else if item.Type == 2 {
-		it2 := wf.NewItem(item.Name).
-			Subtitle(fmt.Sprintf("↩ or ⇥ copy note, %s show more", mod4Emoji)).Valid(true).
+		itemModSet := getModifierActionRelations(item, "item2", nil, "", "")
+		log.Printf("Item2:\n%+v", itemModSet.Item2)
+		it2 := wf.NewItem(itemModSet.Item2.NoMod.Content.Title).
+			Subtitle(itemModSet.Item2.NoMod.Content.Subtitle).Valid(true).
+			Arg(itemModSet.Item2.NoMod.Content.Arg).
 			UID(item.Name).
-			Var("notification", "Copy Note").
-			Var("action", "-getitem").
-			Var("action2", fmt.Sprintf("-id %s", item.Id)).
-			Arg("notes"). // used as jsonpath
-			Icon(iconNote)
-		if opts.Query != "" {
-			it2.NewModifier(mod4[0:]...).Subtitle("Show item").
-				Var("action", fmt.Sprintf("-id %s", item.Id)).
-				Var("action2", fmt.Sprintf("-previous %s", opts.Query)).
-				Arg("").
-				Icon(iconList)
-		} else {
-			it2.NewModifier(mod4[0:]...).Subtitle("Show item").
-				Var("action", fmt.Sprintf("-id %s", item.Id)).
-				Arg("").
-				Icon(iconList)
+			Var("notification", itemModSet.Item2.NoMod.Content.Notification).
+			Var("action", itemModSet.Item2.NoMod.Content.Action).
+			Var("action2", itemModSet.Item2.NoMod.Content.Action2).
+			Var("action3", itemModSet.Item2.NoMod.Content.Action3).
+			Arg(itemModSet.Item2.NoMod.Content.Arg).
+			Icon(itemModSet.Item2.NoMod.Content.Icon)
+		if itemModSet.Item2.Mod1.ModKey != nil {
+			it2.NewModifier(itemModSet.Item2.Mod1.ModKey[0:]...).
+				Subtitle(itemModSet.Item2.Mod1.Content.Subtitle).
+				Arg(itemModSet.Item2.Mod1.Content.Arg).
+				Var("notification", itemModSet.Item2.Mod1.Content.Notification).
+				Var("action", itemModSet.Item2.Mod1.Content.Action).
+				Var("action2", itemModSet.Item2.Mod1.Content.Action2).
+				Var("action3", itemModSet.Item2.Mod1.Content.Action3).
+				Arg(itemModSet.Item2.Mod1.Content.Arg).
+				Icon(itemModSet.Item2.Mod1.Content.Icon)
+		}
+		if itemModSet.Item2.Mod2.ModKey != nil {
+			it2.NewModifier(itemModSet.Item2.Mod2.ModKey[0:]...).
+				Subtitle(itemModSet.Item2.Mod2.Content.Subtitle).
+				Arg(itemModSet.Item2.Mod2.Content.Arg).
+				Var("notification", itemModSet.Item2.Mod2.Content.Notification).
+				Var("action", itemModSet.Item2.Mod2.Content.Action).
+				Var("action2", itemModSet.Item2.Mod2.Content.Action2).
+				Var("action3", itemModSet.Item2.Mod2.Content.Action3).
+				Arg(itemModSet.Item2.Mod2.Content.Arg).
+				Icon(itemModSet.Item2.Mod2.Content.Icon)
+		}
+		if itemModSet.Item2.Mod3.ModKey != nil {
+			it2.NewModifier(itemModSet.Item2.Mod3.ModKey[0:]...).
+				Subtitle(itemModSet.Item2.Mod3.Content.Subtitle).
+				Arg(itemModSet.Item2.Mod3.Content.Arg).
+				Var("notification", itemModSet.Item2.Mod3.Content.Notification).
+				Var("action", itemModSet.Item2.Mod3.Content.Action).
+				Var("action2", itemModSet.Item2.Mod3.Content.Action2).
+				Var("action3", itemModSet.Item2.Mod3.Content.Action3).
+				Arg(itemModSet.Item2.Mod3.Content.Arg).
+				Icon(itemModSet.Item2.Mod3.Content.Icon)
+		}
+		if itemModSet.Item2.Mod4.ModKey != nil {
+			it2.NewModifier(itemModSet.Item2.Mod4.ModKey[0:]...).
+				Subtitle(itemModSet.Item2.Mod4.Content.Subtitle).
+				Arg(itemModSet.Item2.Mod4.Content.Arg).
+				Var("notification", itemModSet.Item2.Mod4.Content.Notification).
+				Var("action", itemModSet.Item2.Mod4.Content.Action).
+				Var("action2", itemModSet.Item2.Mod4.Content.Action2).
+				Var("action3", itemModSet.Item2.Mod4.Content.Action3).
+				Arg(itemModSet.Item2.Mod4.Content.Arg).
+				Icon(itemModSet.Item2.Mod4.Content.Icon)
 		}
 	} else if item.Type == 3 {
-		it3 := wf.NewItem(item.Name).
+		itemModSet := getModifierActionRelations(item, "item3", nil, "", "")
+		log.Printf("Item3:\n%+v", itemModSet.Item3)
+		it3 := wf.NewItem(itemModSet.Item3.NoMod.Content.Title).
 			Valid(true).
-			Subtitle(fmt.Sprintf("%s, %s, ↩ or ⇥ copy number, %s copy Securitey Code, %s show more", item.Card.Brand, item.Card.Number, mod1Emoji, mod4Emoji)).
+			Subtitle(itemModSet.Item3.NoMod.Content.Subtitle).
+			Arg(itemModSet.Item3.NoMod.Content.Arg).
 			UID(item.Name).
-			Icon(iconCreditCard).
-			Var("action", "-getitem").
-			Var("action2", fmt.Sprintf("-id %s", item.Id)).
-			Var("notification", fmt.Sprintf("Copied Card %s:\n%s", item.Card.Brand, item.Card.Number)).
-			Arg("card.number")
-		it3.NewModifier(mod1[0:]...).Subtitle("Copy Card Security Code").
-			Var("action", "-getitem").
-			Var("action2", fmt.Sprintf("-id %s", item.Id)).
-			Var("notification", "Copied Card Security Code").
-			Arg("card.code").
-			Icon(iconPassword)
-		if opts.Query != "" {
-			it3.NewModifier(mod4[0:]...).Subtitle("Show item").
-				Var("action", fmt.Sprintf("-id %s", item.Id)).
-				Var("action2", fmt.Sprintf("-previous %s", opts.Query)).
-				Arg("").
-				Icon(iconList)
-		} else {
-			it3.NewModifier(mod4[0:]...).Subtitle("Show item").
-				Var("action", fmt.Sprintf("-id %s", item.Id)).
-				Arg("").
-				Icon(iconLink)
+			Var("notification", itemModSet.Item3.NoMod.Content.Notification).
+			Var("action", itemModSet.Item3.NoMod.Content.Action).
+			Var("action2", itemModSet.Item3.NoMod.Content.Action2).
+			Var("action3", itemModSet.Item3.NoMod.Content.Action3).
+			Arg(itemModSet.Item3.NoMod.Content.Arg).
+			Icon(itemModSet.Item3.NoMod.Content.Icon)
+		if itemModSet.Item3.Mod1.ModKey != nil {
+			it3.NewModifier(itemModSet.Item3.Mod1.ModKey[0:]...).
+				Subtitle(itemModSet.Item3.Mod1.Content.Subtitle).
+				Arg(itemModSet.Item3.Mod1.Content.Arg).
+				Var("notification", itemModSet.Item3.Mod1.Content.Notification).
+				Var("action", itemModSet.Item3.Mod1.Content.Action).
+				Var("action2", itemModSet.Item3.Mod1.Content.Action2).
+				Var("action3", itemModSet.Item3.Mod1.Content.Action3).
+				Arg(itemModSet.Item3.Mod1.Content.Arg).
+				Icon(itemModSet.Item3.Mod1.Content.Icon)
+		}
+		if itemModSet.Item3.Mod2.ModKey != nil {
+			it3.NewModifier(itemModSet.Item3.Mod2.ModKey[0:]...).
+				Subtitle(itemModSet.Item3.Mod2.Content.Subtitle).
+				Arg(itemModSet.Item3.Mod2.Content.Arg).
+				Var("notification", itemModSet.Item3.Mod2.Content.Notification).
+				Var("action", itemModSet.Item3.Mod2.Content.Action).
+				Var("action2", itemModSet.Item3.Mod2.Content.Action2).
+				Var("action3", itemModSet.Item3.Mod2.Content.Action3).
+				Arg(itemModSet.Item3.Mod2.Content.Arg).
+				Icon(itemModSet.Item3.Mod2.Content.Icon)
+		}
+		if itemModSet.Item3.Mod3.ModKey != nil {
+			it3.NewModifier(itemModSet.Item3.Mod3.ModKey[0:]...).
+				Subtitle(itemModSet.Item3.Mod3.Content.Subtitle).
+				Arg(itemModSet.Item3.Mod3.Content.Arg).
+				Var("notification", itemModSet.Item3.Mod3.Content.Notification).
+				Var("action", itemModSet.Item3.Mod3.Content.Action).
+				Var("action2", itemModSet.Item3.Mod3.Content.Action2).
+				Var("action3", itemModSet.Item3.Mod3.Content.Action3).
+				Arg(itemModSet.Item3.Mod3.Content.Arg).
+				Icon(itemModSet.Item3.Mod3.Content.Icon)
+		}
+		if itemModSet.Item3.Mod4.ModKey != nil {
+			it3.NewModifier(itemModSet.Item3.Mod4.ModKey[0:]...).
+				Subtitle(itemModSet.Item3.Mod4.Content.Subtitle).
+				Arg(itemModSet.Item3.Mod4.Content.Arg).
+				Var("notification", itemModSet.Item3.Mod4.Content.Notification).
+				Var("action", itemModSet.Item3.Mod4.Content.Action).
+				Var("action2", itemModSet.Item3.Mod4.Content.Action2).
+				Var("action3", itemModSet.Item3.Mod4.Content.Action3).
+				Arg(itemModSet.Item3.Mod4.Content.Arg).
+				Icon(itemModSet.Item3.Mod4.Content.Icon)
 		}
 	} else if item.Type == 4 {
-		it4 := wf.NewItem(item.Name).
-			Subtitle(fmt.Sprintf("↩ or ⇥ copy name %s %s, %s show more", item.Identity.FirstName, item.Identity.LastName, mod4Emoji)).
+		itemModSet := getModifierActionRelations(item, "item4", nil, "", "")
+		log.Printf("Item4:\n%+v", itemModSet.Item3)
+		it4 := wf.NewItem(itemModSet.Item4.NoMod.Content.Title).
+			Subtitle(itemModSet.Item4.NoMod.Content.Subtitle).Valid(true).
+			Arg(itemModSet.Item4.NoMod.Content.Arg).
 			UID(item.Name).
-			Valid(true).
-			Icon(iconIdBatch).
-			Var("notification", fmt.Sprintf("Copied Identity Name:\n%s %s", item.Identity.FirstName, item.Identity.LastName)).
-			Var("action", "output").
-			Arg(fmt.Sprintf("%s %s", item.Identity.FirstName, item.Identity.LastName))
-		if opts.Query != "" {
-			it4.NewModifier(mod4[0:]...).Subtitle("Show item").
-				Var("action", fmt.Sprintf("-id %s", item.Id)).
-				Var("action2", fmt.Sprintf("-previous %s", opts.Query)).
-				Arg("").
-				Icon(iconLink)
-		} else {
-			it4.Arg(fmt.Sprintf("%s %s", item.Identity.FirstName, item.Identity.LastName)).
-				NewModifier(mod4[0:]...).Subtitle("Show item").
-				Var("action", fmt.Sprintf("-id %s", item.Id)).
-				Arg("").
-				Icon(iconIdBatch)
+			Var("notification", itemModSet.Item4.NoMod.Content.Notification).
+			Var("action", itemModSet.Item4.NoMod.Content.Action).
+			Var("action2", itemModSet.Item4.NoMod.Content.Action2).
+			Var("action3", itemModSet.Item4.NoMod.Content.Action3).
+			Arg(itemModSet.Item4.NoMod.Content.Arg).
+			Icon(itemModSet.Item4.NoMod.Content.Icon)
+		if itemModSet.Item4.Mod1.ModKey != nil {
+			it4.NewModifier(itemModSet.Item4.Mod1.ModKey[0:]...).
+				Subtitle(itemModSet.Item4.Mod1.Content.Subtitle).
+				Arg(itemModSet.Item4.Mod1.Content.Arg).
+				Var("notification", itemModSet.Item4.Mod1.Content.Notification).
+				Var("action", itemModSet.Item4.Mod1.Content.Action).
+				Var("action2", itemModSet.Item4.Mod1.Content.Action2).
+				Var("action3", itemModSet.Item4.Mod1.Content.Action3).
+				Arg(itemModSet.Item4.Mod1.Content.Arg).
+				Icon(itemModSet.Item4.Mod1.Content.Icon)
+		}
+		if itemModSet.Item4.Mod2.ModKey != nil {
+			it4.NewModifier(itemModSet.Item4.Mod2.ModKey[0:]...).
+				Subtitle(itemModSet.Item4.Mod2.Content.Subtitle).
+				Arg(itemModSet.Item4.Mod2.Content.Arg).
+				Var("notification", itemModSet.Item4.Mod2.Content.Notification).
+				Var("action", itemModSet.Item4.Mod2.Content.Action).
+				Var("action2", itemModSet.Item4.Mod2.Content.Action2).
+				Var("action3", itemModSet.Item4.Mod2.Content.Action3).
+				Arg(itemModSet.Item4.Mod2.Content.Arg).
+				Icon(itemModSet.Item4.Mod2.Content.Icon)
+		}
+		if itemModSet.Item4.Mod3.ModKey != nil {
+			it4.NewModifier(itemModSet.Item4.Mod3.ModKey[0:]...).
+				Subtitle(itemModSet.Item4.Mod3.Content.Subtitle).
+				Arg(itemModSet.Item4.Mod3.Content.Arg).
+				Var("notification", itemModSet.Item4.Mod3.Content.Notification).
+				Var("action", itemModSet.Item4.Mod3.Content.Action).
+				Var("action2", itemModSet.Item4.Mod3.Content.Action2).
+				Var("action3", itemModSet.Item4.Mod3.Content.Action3).
+				Arg(itemModSet.Item4.Mod3.Content.Arg).
+				Icon(itemModSet.Item4.Mod3.Content.Icon)
+		}
+		if itemModSet.Item4.Mod4.ModKey != nil {
+			it4.NewModifier(itemModSet.Item4.Mod4.ModKey[0:]...).
+				Subtitle(itemModSet.Item4.Mod4.Content.Subtitle).
+				Arg(itemModSet.Item4.Mod4.Content.Arg).
+				Var("notification", itemModSet.Item4.Mod4.Content.Notification).
+				Var("action", itemModSet.Item4.Mod4.Content.Action).
+				Var("action2", itemModSet.Item4.Mod4.Content.Action2).
+				Var("action3", itemModSet.Item4.Mod4.Content.Action3).
+				Arg(itemModSet.Item4.Mod4.Content.Arg).
+				Icon(itemModSet.Item4.Mod4.Content.Icon)
 		}
 	} else {
 		log.Printf("New item, needs to be implemented.")

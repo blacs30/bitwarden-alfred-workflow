@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
 	"github.com/kelseyhightower/envconfig"
 	"os"
@@ -37,6 +38,39 @@ var (
 	mod4Emoji string
 )
 
+type modifierActionContent struct {
+	Title        string
+	Subtitle     string
+	Notification string
+	Action       string
+	Action2      string
+	Action3      string
+	Arg          string
+	Icon         *aw.Icon
+	ActionName   string
+}
+
+type modifierActionRelation struct {
+	ModKey  []aw.ModKey
+	Content modifierActionContent
+}
+
+type itemActions struct {
+	NoMod modifierActionRelation
+	Mod1  modifierActionRelation
+	Mod2  modifierActionRelation
+	Mod3  modifierActionRelation
+	Mod4  modifierActionRelation
+}
+
+type itemsModifierActionRelation struct {
+	Item1 itemActions
+	Item2 itemActions
+	Item3 itemActions
+	Item4 itemActions
+	More  modifierActionRelation
+}
+
 type config struct {
 	// From workflow environment variables
 	AutoFetchIconCacheAge    int `default:"1440" split_words:"true"`
@@ -44,6 +78,7 @@ type config struct {
 	BwconfKeyword            string
 	BwauthKeyword            string
 	BwKeyword                string
+	BwfKeyword               string
 	BwExec                   string `split_words:"true"`
 	CacheAge                 int    `default:"1440" split_words:"true"`
 	Email                    string
@@ -54,9 +89,14 @@ type config struct {
 	MaxResults               int `default:"1000" split_words:"true"`
 	MaxCacheAge              time.Duration
 	Mod1                     string `envconfig:"MODIFIER_1" default:"alt"`
+	Mod1Action               string `envconfig:"MODIFIER_1_ACTION" default:"username,code"`
 	Mod2                     string `envconfig:"MODIFIER_2" default:"shift"`
+	Mod2Action               string `envconfig:"MODIFIER_2_ACTION" default:"url"`
 	Mod3                     string `envconfig:"MODIFIER_3" default:"cmd"`
+	Mod3Action               string `envconfig:"MODIFIER_3_ACTION" default:"totp"`
 	Mod4                     string `envconfig:"MODIFIER_4" default:"cmd,alt,ctrl"`
+	Mod4Action               string `envconfig:"MODIFIER_4_ACTION" default:"more"`
+	NoModAction              string `envconfig:"NO_MODIFIER_ACTION" default:"password,card"`
 	OutputFolder             string `default:"" split_words:"true"`
 	Path                     string
 	ReorderingDisabled       bool   `default:"true" split_words:"true"`
@@ -65,6 +105,7 @@ type config struct {
 	SfaMode                  int    `envconfig:"2FA_MODE" default:"0"`
 	SyncCacheAge             int    `default:"1440" split_words:"true"`
 	SyncMaxCacheAge          time.Duration
+	TitleWithUser            bool `envconfig:"TITLE_WITH_USER" default:"false"`
 }
 
 //// Load configuration file.
@@ -88,6 +129,7 @@ func loadConfig() {
 	conf.BwauthKeyword = os.Getenv("bwauth_keyword")
 	conf.BwconfKeyword = os.Getenv("bwconf_keyword")
 	conf.BwKeyword = os.Getenv("bw_keyword")
+	conf.BwfKeyword = os.Getenv("bwf_keyword")
 	initModifiers()
 }
 
@@ -146,4 +188,297 @@ func getModifierEmoji(keys string) string {
 	emojiString := strings.Join(emojiSlice, "+")
 
 	return emojiString
+}
+
+func getTypeEmoji(itemType string) (string, error) {
+	modKeysMap := map[string]string{
+		conf.NoModAction: "",
+		conf.Mod1Action:  mod1Emoji,
+		conf.Mod2Action:  mod2Emoji,
+		conf.Mod3Action:  mod3Emoji,
+		conf.Mod4Action:  mod4Emoji,
+	}
+	for keys, emoji := range modKeysMap {
+		splitKeys := strings.Split(keys, ",")
+		for _, key := range splitKeys {
+		    key = strings.TrimSpace(key)
+			if key == itemType {
+				return emoji, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("no matching key found for type: %s", itemType)
+}
+
+func getModifierActionRelations(item Item, itemType string, icon *aw.Icon, totp string, url string) itemsModifierActionRelation {
+	var itemModConfig itemsModifierActionRelation
+	setModAction(&itemModConfig, item, itemType, "nomod", conf.NoModAction, icon, totp, url)
+	setModAction(&itemModConfig, item, itemType, "mod1", conf.Mod1Action, icon, totp, url)
+	setModAction(&itemModConfig, item, itemType, "mod2", conf.Mod2Action, icon, totp, url)
+	setModAction(&itemModConfig, item, itemType, "mod3", conf.Mod3Action, icon, totp, url)
+	setModAction(&itemModConfig, item, itemType, "mod4", conf.Mod4Action, icon, totp, url)
+	return itemModConfig
+}
+
+func setModAction(itemConfig *itemsModifierActionRelation, item Item, itemType string, modMode string, actionString string, icon *aw.Icon, totp string, url string) {
+	// get emojis assigned to the modification key
+	moreEmoji, err := getTypeEmoji("more")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	codeEmoji, err := getTypeEmoji("code")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	cardEmoji, err := getTypeEmoji("card")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	passEmoji, err := getTypeEmoji("password")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	userEmoji, err := getTypeEmoji("username")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+	splitActions := strings.Split(actionString, ",")
+	for _, action := range splitActions {
+        action = strings.TrimSpace(action)
+        if itemType == "item1" {
+			title := item.Name
+			if conf.TitleWithUser {
+				title = fmt.Sprintf("%s - %s", item.Name, item.Login.Username)
+			}
+			if action == "password" {
+				subtitle := fmt.Sprintf("Copy password")
+				if modMode == "nomod" {
+					subtitle = fmt.Sprintf("↩ or ⇥ copy Password, %s %s, %s %s %s Show more", userEmoji, item.Login.Username, totp, url, moreEmoji)
+				}
+				modItem := modifierActionContent{
+					Title:        title,
+					Subtitle:     subtitle,
+					Notification: fmt.Sprintf("Copy Password for user:\n%s", item.Login.Username),
+					Action:       "-getitem",
+					Action2:      fmt.Sprintf("-id %s", item.Id),
+					Action3:      " ",
+					Arg:          "login.password",
+					Icon:         icon,
+					ActionName:   action,
+				}
+				setItemMod(itemConfig, modItem, itemType, modMode)
+			}
+			if action == "username" {
+				assignedIcon := iconUser
+				subtitle := fmt.Sprintf("Copy Username")
+				if modMode == "nomod" {
+					assignedIcon = icon
+					subtitle = fmt.Sprintf("↩ or ⇥ copy Username, %s Password, %s %s %s Show more", passEmoji, totp, url, moreEmoji)
+				}
+				modItem := modifierActionContent{
+					Title:        title,
+					Subtitle:     subtitle,
+					Notification: fmt.Sprintf("Copy Username:\n%s", item.Login.Username),
+					Action:       "output",
+					Action2:      " ",
+					Action3:      " ",
+					Arg:          item.Login.Username,
+					Icon:         assignedIcon,
+					ActionName:   action,
+				}
+				setItemMod(itemConfig, modItem, itemType, modMode)
+			}
+			if action == "url" {
+				if len(item.Login.Uris) == 0 {
+					continue
+				}
+				assignedIcon := iconLink
+				subtitle := fmt.Sprintf("Copy URL")
+				if modMode == "nomod" {
+					assignedIcon = icon
+					subtitle = fmt.Sprintf("↩ or ⇥ copy URL, %s Password, %s Username %s %s Show more", passEmoji, userEmoji, totp, moreEmoji)
+				}
+				modItem := modifierActionContent{
+					Title:        title,
+					Subtitle:     subtitle,
+					Notification: " ",
+					Action:       "-open",
+					Action2:      " ",
+					Action3:      " ",
+					Arg:          item.Login.Uris[0].Uri,
+					Icon:         assignedIcon,
+					ActionName:   action,
+				}
+				setItemMod(itemConfig, modItem, itemType, modMode)
+			}
+			if action == "totp" {
+				if totp == "" {
+					continue
+				}
+				assignedIcon := iconUserClock
+				subtitle := fmt.Sprintf("Copy TOTP")
+				if modMode == "nomod" {
+					assignedIcon = icon
+					subtitle = fmt.Sprintf("↩ or ⇥ copy TOTP, %s Password, %s Username %s %s Show more", passEmoji, userEmoji, url, moreEmoji)
+				}
+				modItem := modifierActionContent{
+					Title:        title,
+					Subtitle:     subtitle,
+					Notification: fmt.Sprintf("Copy TOTP for user:\n%s", item.Login.Username),
+					Action:       "-getitem",
+					Action2:      "-totp",
+					Action3:      fmt.Sprintf("-id %s", item.Id),
+					Arg:          " ",
+					Icon:         assignedIcon,
+					ActionName:   action,
+				}
+				setItemMod(itemConfig, modItem, itemType, modMode)
+			}
+		}
+		if itemType == "item2" {
+			modItem := modifierActionContent{
+				Title:        item.Name,
+				Subtitle:     fmt.Sprintf("↩ or ⇥ copy Note, %s show more", moreEmoji),
+				Notification: "Copy Note",
+				Action:       "-getitem",
+				Action2:      fmt.Sprintf("-id %s", item.Id),
+				Action3:      " ",
+				Arg:          "notes",
+				Icon:         iconNote,
+				ActionName:   "",
+			}
+			setItemMod(itemConfig, modItem, itemType, "nomod")
+		}
+		if itemType == "item3" {
+			title := item.Name
+			if conf.TitleWithUser {
+				title = fmt.Sprintf("%s - %s", item.Name, item.Card.Number)
+			}
+			if action == "card" {
+				subtitle := fmt.Sprintf("Copy Card Number")
+				if modMode == "nomod" {
+					subtitle = fmt.Sprintf("%s, %s, ↩ or ⇥ copy Card Number, %s copy Securitey Code, %s show more", item.Card.Brand, item.Card.Number, codeEmoji, moreEmoji)
+				}
+				modItem := modifierActionContent{
+					Title:        title,
+					Subtitle:     subtitle,
+					Notification: fmt.Sprintf("Copied Card %s:\n%s", item.Card.Brand, item.Card.Number),
+					Action:       "-getitem",
+					Action2:      fmt.Sprintf("-id %s", item.Id),
+					Action3:      " ",
+					Arg:          "card.number",
+					Icon:         iconCreditCard,
+					ActionName:   action,
+				}
+				setItemMod(itemConfig, modItem, itemType, modMode)
+			}
+			if action == "code" {
+				subtitle := fmt.Sprintf("Copy card security code")
+				if modMode == "nomod" {
+					subtitle = fmt.Sprintf("%s, %s, ↩ or ⇥ copy Security Code, %s copy Card Number, %s show more", item.Card.Brand, item.Card.Number, cardEmoji, moreEmoji)
+				}
+				assignedIcon := iconPassword
+				if modMode == "nomod" {
+					assignedIcon = iconCreditCard
+				}
+				modItem := modifierActionContent{
+					Title:        title,
+					Subtitle:     subtitle,
+					Notification: "Copied Card Security Code",
+					Action:       "-getitem",
+					Action2:      fmt.Sprintf("-id %s", item.Id),
+					Action3:      " ",
+					Arg:          "card.code",
+					Icon:         assignedIcon,
+					ActionName:   action,
+				}
+				setItemMod(itemConfig, modItem, itemType, modMode)
+			}
+		}
+		if itemType == "item4" {
+			modItem := modifierActionContent{
+				Title:        item.Name,
+				Subtitle:     fmt.Sprintf("↩ or ⇥ copy name %s %s, %s show more", item.Identity.FirstName, item.Identity.LastName, moreEmoji),
+				Notification: fmt.Sprintf("Copied Identity Name:\n%s %s", item.Identity.FirstName, item.Identity.LastName),
+				Action:       "output",
+				Action2:      " ",
+				Action3:      " ",
+				Arg:          " ",
+				Icon:         iconIdBatch,
+				ActionName:   "",
+			}
+			setItemMod(itemConfig, modItem, itemType, "nomod")
+		}
+		if action == "more" {
+			modItem := modifierActionContent{
+				Title:        item.Name,
+				Subtitle:     "Show item",
+				Notification: " ",
+				Action:       fmt.Sprintf("-id %s", item.Id),
+				Action2:      " ",
+				Action3:      " ",
+				Arg:          " ",
+				Icon:         iconList,
+				ActionName:   action,
+			}
+			setItemMod(itemConfig, modItem, itemType, modMode)
+		}
+	}
+}
+
+func setItemMod(itemConfig *itemsModifierActionRelation, content modifierActionContent, itemType string, modMode string) {
+	switch itemType {
+	case "item1":
+		switch modMode {
+		case "nomod":
+			itemConfig.Item1.NoMod = modifierActionRelation{ModKey: nil, Content: content}
+		case "mod1":
+			itemConfig.Item1.Mod1 = modifierActionRelation{ModKey: mod1, Content: content}
+		case "mod2":
+			itemConfig.Item1.Mod2 = modifierActionRelation{ModKey: mod2, Content: content}
+		case "mod3":
+			itemConfig.Item1.Mod3 = modifierActionRelation{ModKey: mod3, Content: content}
+		case "mod4":
+			itemConfig.Item1.Mod4 = modifierActionRelation{ModKey: mod4, Content: content}
+		}
+	case "item2":
+		switch modMode {
+		case "nomod":
+			itemConfig.Item2.NoMod = modifierActionRelation{ModKey: nil, Content: content}
+		case "mod1":
+			itemConfig.Item2.Mod1 = modifierActionRelation{ModKey: mod1, Content: content}
+		case "mod2":
+			itemConfig.Item2.Mod2 = modifierActionRelation{ModKey: mod2, Content: content}
+		case "mod3":
+			itemConfig.Item2.Mod3 = modifierActionRelation{ModKey: mod3, Content: content}
+		case "mod4":
+			itemConfig.Item2.Mod4 = modifierActionRelation{ModKey: mod4, Content: content}
+		}
+	case "item3":
+		switch modMode {
+		case "nomod":
+			itemConfig.Item3.NoMod = modifierActionRelation{ModKey: nil, Content: content}
+		case "mod1":
+			itemConfig.Item3.Mod1 = modifierActionRelation{ModKey: mod1, Content: content}
+		case "mod2":
+			itemConfig.Item3.Mod2 = modifierActionRelation{ModKey: mod2, Content: content}
+		case "mod3":
+			itemConfig.Item3.Mod3 = modifierActionRelation{ModKey: mod3, Content: content}
+		case "mod4":
+			itemConfig.Item3.Mod4 = modifierActionRelation{ModKey: mod4, Content: content}
+		}
+	case "item4":
+		switch modMode {
+		case "nomod":
+			itemConfig.Item4.NoMod = modifierActionRelation{ModKey: nil, Content: content}
+		case "mod1":
+			itemConfig.Item4.Mod1 = modifierActionRelation{ModKey: mod1, Content: content}
+		case "mod2":
+			itemConfig.Item4.Mod2 = modifierActionRelation{ModKey: mod2, Content: content}
+		case "mod3":
+			itemConfig.Item4.Mod3 = modifierActionRelation{ModKey: mod3, Content: content}
+		case "mod4":
+			itemConfig.Item4.Mod4 = modifierActionRelation{ModKey: mod4, Content: content}
+		}
+	}
 }
