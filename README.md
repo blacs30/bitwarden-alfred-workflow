@@ -142,6 +142,16 @@ The icons are based on [Bitwarden Brand](https://github.com/bitwarden/brand) , [
 
 Parts of the README are taken over from [alfred-aws-console-services-workflow](https://github.com/rkoval/alfred-aws-console-services-workflow)
 
+## Contributors
+
+A big thanks to all code contributors but also to everyone who creates issues and helps that this workflow matures.
+
+- @luckman212
+- @blacs30
+
+> Though this repository was a fork, it has 0 code reference anymore to the forked repo
+> because of watchers and stars I decided to leave it this way and not to "unlink" it - by creating a new clean repository
+
 ## Source that helped me to get started
 
 - [Writing Alfred workflows in Go](https://medium.com/@nikitavoloboev/writing-alfred-workflows-in-go-2a44f62dc432)
