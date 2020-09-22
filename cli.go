@@ -49,7 +49,6 @@ type options struct {
 	// Arguments
 	Id         string
 	Query      string
-	Previous   string
 	Attachment string
 	Output     string
 }
@@ -66,7 +65,6 @@ func init() {
 	cli.BoolVar(&opts.Icons, "icons", false, "Get favicons")
 	cli.BoolVar(&opts.Folder, "folder", false, "Filter Bitwarden Folders")
 	cli.StringVar(&opts.Id, "id", "", "Get item by id")
-	cli.StringVar(&opts.Previous, "previous", "", "Save previous search term to go back to it")
 	cli.StringVar(&opts.Attachment, "attachment", "", "set attachment id")
 	cli.StringVar(&opts.Output, "output", "", "set output folder")
 	cli.BoolVar(&opts.Login, "login", false, "login to Bitwarden")
@@ -499,6 +497,8 @@ func runSearch(folderSearch bool, itemId string) {
 	// Load data
 	var items []Item
 	var folders []Folder
+
+	// check if the data cache exists
 	if wf.Cache.Exists(CACHE_NAME) && wf.Cache.Exists(FOLDER_CACHE_NAME) {
 		data, err := Decrypt()
 		if err != nil {
@@ -615,7 +615,7 @@ func runSearch(folderSearch bool, itemId string) {
 		// Add item to for itemId
 		for _, item := range items {
 			if item.Id == itemId {
-				addItemDetails(item, opts.Previous, autoFetchCache)
+				addItemDetails(item, autoFetchCache)
 
 				if opts.Query != "" {
 					log.Printf(`searching for "%s" ...`, opts.Query)
@@ -630,7 +630,7 @@ func runSearch(folderSearch bool, itemId string) {
 		}
 	}
 
-	if folderSearch && itemId != "" {
+	if itemId != "" && folderSearch {
 		log.Printf(`searching in folder with id "%s" ...`, itemId)
 		// Add item to search folders
 		wf.NewItem("Back to folder search.").
@@ -638,7 +638,7 @@ func runSearch(folderSearch bool, itemId string) {
 			UID("").
 			Icon(iconFolder).
 			Var("action", "-search").
-			Arg(fmt.Sprintf("%s -folder %s", conf.BwKeyword, opts.Previous))
+			Arg(fmt.Sprintf("%s", conf.BwfKeyword))
 
 		for _, item := range items {
 			if item.FolderId == itemId {
@@ -664,7 +664,7 @@ func runSearch(folderSearch bool, itemId string) {
 			UID("").
 			Icon(iconFolder).
 			Var("action", "-search").
-			Arg(fmt.Sprintf("%s -folder ", conf.BwKeyword))
+			Arg(fmt.Sprintf("%s", conf.BwfKeyword))
 
 		log.Printf("Number of items %d", len(items))
 		for _, item := range items {
@@ -707,8 +707,7 @@ func runSearchFolder(items []Item, folders []Folder) {
 				UID(folder.Id).
 				Icon(iconFolderOpen).
 				Var("action", "-folder").
-				Var("action2", fmt.Sprintf("-id %s ", id)).
-				Var("action3", fmt.Sprintf("-previous %s", opts.Query))
+				Var("action2", fmt.Sprintf("-id %s ", id))
 		} else {
 			wf.NewItem(folder.Name).
 				Subtitle(fmt.Sprintf("Number of items: %d", itemCount)).Valid(true).
