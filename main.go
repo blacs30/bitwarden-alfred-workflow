@@ -150,18 +150,9 @@ func run() {
 	}
 	opts.Query = cli.Arg(0)
 
-	//// Load configuration
-	//if conf, err = loadConfig(); err != nil {
-	//    log.Printf("couldn't load config  %v", err)
-	//    wf.Fatal("Couldn't load config. Check log file.")
-	//}
-
-	//email, sfaEnabled, sfaMode, server := getConfigs(wf)
-	//allConfigs := []string{"email:", email, "2FA enabled:", fmt.Sprintf("%t", sfaEnabled), "2FA Mode:", map2faMode(sfaMode), "Server:", server}
 	log.Printf("%#v", opts)
 	if wf.Debug() {
 		log.Printf("args=%#v => %#v", wf.Args(), cli.Args())
-		//log.Printf("Workflow configs => %v", allConfigs)
 		log.Print(spew.Sdump(conf))
 	}
 
