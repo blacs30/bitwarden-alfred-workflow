@@ -367,6 +367,19 @@
 				<false/>
 			</dict>
 		</array>
+		<key>D78812B0-AEB1-4A2C-BBC3-77ED891B40F4</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>BB87567B-757A-4DE2-8022-DA48FD22663D</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+				<key>vitoclose</key>
+				<false/>
+			</dict>
+		</array>
 		<key>D9165B59-BF7D-44B4-8602-431F41C8CFD5</key>
 		<array/>
 		<key>E16A1D44-5D3B-423E-AB99-1D189318EEE1</key>
@@ -419,70 +432,6 @@
 		<dict>
 			<key>config</key>
 			<dict>
-				<key>autopaste</key>
-				<false/>
-				<key>clipboardtext</key>
-				<string>{query}</string>
-				<key>transient</key>
-				<false/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.output.clipboard</string>
-			<key>uid</key>
-			<string>2C599764-4F41-40F8-B6D9-2CD0A5FAAD77</string>
-			<key>version</key>
-			<integer>3</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>alfredfiltersresults</key>
-				<false/>
-				<key>alfredfiltersresultsmatchmode</key>
-				<integer>0</integer>
-				<key>argumenttreatemptyqueryasnil</key>
-				<true/>
-				<key>argumenttrimmode</key>
-				<integer>0</integer>
-				<key>argumenttype</key>
-				<integer>1</integer>
-				<key>escaping</key>
-				<integer>102</integer>
-				<key>queuedelaycustom</key>
-				<integer>3</integer>
-				<key>queuedelayimmediatelyinitially</key>
-				<true/>
-				<key>queuedelaymode</key>
-				<integer>0</integer>
-				<key>queuemode</key>
-				<integer>1</integer>
-				<key>runningsubtext</key>
-				<string></string>
-				<key>script</key>
-				<string>./bitwarden-alfred-workflow $action $action2 $action3 $1</string>
-				<key>scriptargtype</key>
-				<integer>1</integer>
-				<key>scriptfile</key>
-				<string></string>
-				<key>subtext</key>
-				<string></string>
-				<key>title</key>
-				<string>{var:title}</string>
-				<key>type</key>
-				<integer>0</integer>
-				<key>withspace</key>
-				<true/>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.input.scriptfilter</string>
-			<key>uid</key>
-			<string>2B07EDA7-EF15-46A4-8644-073ACAE7FD02</string>
-			<key>version</key>
-			<integer>3</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
 				<key>alfredfiltersresults</key>
 				<false/>
 				<key>alfredfiltersresultsmatchmode</key>
@@ -532,6 +481,72 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>autopaste</key>
+				<false/>
+				<key>clipboardtext</key>
+				<string>{query}</string>
+				<key>ignoredynamicplaceholders</key>
+				<false/>
+				<key>transient</key>
+				<false/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.output.clipboard</string>
+			<key>uid</key>
+			<string>2C599764-4F41-40F8-B6D9-2CD0A5FAAD77</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>alfredfiltersresults</key>
+				<true/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>2</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<true/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string></string>
+				<key>script</key>
+				<string>./bitwarden-alfred-workflow $action $action2 $action3 $1</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string></string>
+				<key>title</key>
+				<string>{var:title}</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>2B07EDA7-EF15-46A4-8644-073ACAE7FD02</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>concurrently</key>
 				<false/>
 				<key>escaping</key>
@@ -559,6 +574,8 @@
 				<false/>
 				<key>clipboardtext</key>
 				<string>{query}</string>
+				<key>ignoredynamicplaceholders</key>
+				<false/>
 				<key>transient</key>
 				<true/>
 			</dict>
@@ -704,11 +721,11 @@
 			<key>config</key>
 			<dict>
 				<key>alfredfiltersresults</key>
-				<false/>
-				<key>alfredfiltersresultsmatchmode</key>
-				<integer>0</integer>
-				<key>argumenttreatemptyqueryasnil</key>
 				<true/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>2</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<false/>
 				<key>argumenttrimmode</key>
 				<integer>0</integer>
 				<key>argumenttype</key>
@@ -720,7 +737,7 @@
 				<key>queuedelaycustom</key>
 				<integer>3</integer>
 				<key>queuedelayimmediatelyinitially</key>
-				<true/>
+				<false/>
 				<key>queuedelaymode</key>
 				<integer>0</integer>
 				<key>queuemode</key>
@@ -778,11 +795,11 @@
 			<key>config</key>
 			<dict>
 				<key>alfredfiltersresults</key>
-				<false/>
-				<key>alfredfiltersresultsmatchmode</key>
-				<integer>0</integer>
-				<key>argumenttreatemptyqueryasnil</key>
 				<true/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>2</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<false/>
 				<key>argumenttrimmode</key>
 				<integer>0</integer>
 				<key>argumenttype</key>
@@ -790,27 +807,28 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>keyword</key>
-				<string>{var:bwconf_keyword}</string>
+				<string>{var:bwf_keyword}</string>
 				<key>queuedelaycustom</key>
 				<integer>3</integer>
 				<key>queuedelayimmediatelyinitially</key>
-				<true/>
+				<false/>
 				<key>queuedelaymode</key>
 				<integer>0</integer>
 				<key>queuemode</key>
 				<integer>1</integer>
 				<key>runningsubtext</key>
-				<string>Reading settings…</string>
+				<string>Finding secrets in folders…</string>
 				<key>script</key>
-				<string>./bitwarden-alfred-workflow -conf "$1"</string>
+				<string>./bitwarden-alfred-workflow --folder $action $action2 $action3 $1
+</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
 				<string></string>
 				<key>subtext</key>
-				<string>View and edit workflow settings</string>
+				<string>Search and Get Secrets from Bitwarden Folders</string>
 				<key>title</key>
-				<string>Settings for Bitwarden</string>
+				<string>Search Bitwarden Folders</string>
 				<key>type</key>
 				<integer>0</integer>
 				<key>withspace</key>
@@ -819,7 +837,7 @@
 			<key>type</key>
 			<string>alfred.workflow.input.scriptfilter</string>
 			<key>uid</key>
-			<string>4BC115D2-2F84-4652-892B-3250887C4597</string>
+			<string>D78812B0-AEB1-4A2C-BBC3-77ED891B40F4</string>
 			<key>version</key>
 			<integer>3</integer>
 		</dict>
@@ -905,6 +923,55 @@
 		<dict>
 			<key>config</key>
 			<dict>
+				<key>alfredfiltersresults</key>
+				<false/>
+				<key>alfredfiltersresultsmatchmode</key>
+				<integer>0</integer>
+				<key>argumenttreatemptyqueryasnil</key>
+				<true/>
+				<key>argumenttrimmode</key>
+				<integer>0</integer>
+				<key>argumenttype</key>
+				<integer>1</integer>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>keyword</key>
+				<string>{var:bwconf_keyword}</string>
+				<key>queuedelaycustom</key>
+				<integer>3</integer>
+				<key>queuedelayimmediatelyinitially</key>
+				<true/>
+				<key>queuedelaymode</key>
+				<integer>0</integer>
+				<key>queuemode</key>
+				<integer>1</integer>
+				<key>runningsubtext</key>
+				<string>Reading settings…</string>
+				<key>script</key>
+				<string>./bitwarden-alfred-workflow -conf "$1"</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>subtext</key>
+				<string>View and edit workflow settings</string>
+				<key>title</key>
+				<string>Settings for Bitwarden</string>
+				<key>type</key>
+				<integer>0</integer>
+				<key>withspace</key>
+				<true/>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.input.scriptfilter</string>
+			<key>uid</key>
+			<string>4BC115D2-2F84-4652-892B-3250887C4597</string>
+			<key>version</key>
+			<integer>3</integer>
+		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
 				<key>concurrently</key>
 				<false/>
 				<key>escaping</key>
@@ -943,29 +1010,6 @@
 			<string>B083B37D-7F08-4B68-B087-100C361FAAD9</string>
 			<key>version</key>
 			<integer>1</integer>
-		</dict>
-		<dict>
-			<key>config</key>
-			<dict>
-				<key>concurrently</key>
-				<false/>
-				<key>escaping</key>
-				<integer>102</integer>
-				<key>script</key>
-				<string>/usr/bin/osascript bitwarden-auth-flow.js $1 $2 $3 $4</string>
-				<key>scriptargtype</key>
-				<integer>1</integer>
-				<key>scriptfile</key>
-				<string></string>
-				<key>type</key>
-				<integer>0</integer>
-			</dict>
-			<key>type</key>
-			<string>alfred.workflow.action.script</string>
-			<key>uid</key>
-			<string>3E2F1180-58FF-4BE9-94B8-97CADE398C33</string>
-			<key>version</key>
-			<integer>2</integer>
 		</dict>
 		<dict>
 			<key>config</key>
@@ -1058,6 +1102,29 @@
 			<key>version</key>
 			<integer>3</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>concurrently</key>
+				<false/>
+				<key>escaping</key>
+				<integer>102</integer>
+				<key>script</key>
+				<string>/usr/bin/osascript bitwarden-auth-flow.js $1 $2 $3 $4</string>
+				<key>scriptargtype</key>
+				<integer>1</integer>
+				<key>scriptfile</key>
+				<string></string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>3E2F1180-58FF-4BE9-94B8-97CADE398C33</string>
+			<key>version</key>
+			<integer>2</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string>Get secrets and other things from Bitwarden.
@@ -1090,7 +1157,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<key>270A6CCE-F927-4E8F-9520-8F787573B1E3</key>
 		<dict>
 			<key>xpos</key>
-			<integer>170</integer>
+			<integer>175</integer>
 			<key>ypos</key>
 			<integer>125</integer>
 		</dict>
@@ -1122,16 +1189,16 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<key>3E2F1180-58FF-4BE9-94B8-97CADE398C33</key>
 		<dict>
 			<key>xpos</key>
-			<integer>150</integer>
+			<integer>175</integer>
 			<key>ypos</key>
-			<integer>460</integer>
+			<integer>515</integer>
 		</dict>
 		<key>4BC115D2-2F84-4652-892B-3250887C4597</key>
 		<dict>
 			<key>xpos</key>
-			<integer>170</integer>
+			<integer>175</integer>
 			<key>ypos</key>
-			<integer>235</integer>
+			<integer>350</integer>
 		</dict>
 		<key>9820C2CA-1F87-4023-917E-BF7E6E98E47D</key>
 		<dict>
@@ -1150,9 +1217,9 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<key>BB87567B-757A-4DE2-8022-DA48FD22663D</key>
 		<dict>
 			<key>xpos</key>
-			<integer>340</integer>
+			<integer>335</integer>
 			<key>ypos</key>
-			<integer>95</integer>
+			<integer>90</integer>
 		</dict>
 		<key>BEA5F04E-F7FB-4986-9C6B-FB1B47387533</key>
 		<dict>
@@ -1175,9 +1242,9 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<key>D24237CD-F51F-441E-B3DF-DD3AF9D4EB77</key>
 		<dict>
 			<key>xpos</key>
-			<integer>175</integer>
+			<integer>170</integer>
 			<key>ypos</key>
-			<integer>20</integer>
+			<integer>15</integer>
 		</dict>
 		<key>D65172E3-F69B-4607-95C1-A247FF400E84</key>
 		<dict>
@@ -1185,6 +1252,13 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 			<integer>1250</integer>
 			<key>ypos</key>
 			<integer>365</integer>
+		</dict>
+		<key>D78812B0-AEB1-4A2C-BBC3-77ED891B40F4</key>
+		<dict>
+			<key>xpos</key>
+			<integer>175</integer>
+			<key>ypos</key>
+			<integer>240</integer>
 		</dict>
 		<key>D9165B59-BF7D-44B4-8602-431F41C8CFD5</key>
 		<dict>
@@ -1240,12 +1314,22 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<string>1000</string>
 		<key>MODIFIER_1</key>
 		<string>alt</string>
+		<key>MODIFIER_1_ACTION</key>
+		<string>username,code</string>
 		<key>MODIFIER_2</key>
 		<string>shift</string>
+		<key>MODIFIER_2_ACTION</key>
+		<string>url</string>
 		<key>MODIFIER_3</key>
 		<string>ctrl</string>
+		<key>MODIFIER_3_ACTION</key>
+		<string>totp</string>
 		<key>MODIFIER_4</key>
 		<string>cmd,opt</string>
+		<key>MODIFIER_4_ACTION</key>
+		<string>more</string>
+		<key>NO_MODIFIER_ACTION</key>
+		<string>password,card </string>
 		<key>OUTPUT_FOLDER</key>
 		<string></string>
 		<key>PATH</key>
@@ -1256,12 +1340,16 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<string>https://bitwarden.com</string>
 		<key>SYNC_CACHE_AGE</key>
 		<string>1440</string>
+		<key>TITLE_WITH_USER</key>
+		<string>true</string>
 		<key>bw_keyword</key>
 		<string>.bw</string>
 		<key>bwauth_keyword</key>
 		<string>.bwauth</string>
 		<key>bwconf_keyword</key>
 		<string>.bwconfig</string>
+		<key>bwf_keyword</key>
+		<string>.bwf</string>
 	</dict>
 	<key>variablesdontexport</key>
 	<array>
@@ -1269,7 +1357,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<string>SERVER_URL</string>
 	</array>
 	<key>version</key>
-	<string>2.0.5</string>
+	<string>2.1.0</string>
 	<key>webaddress</key>
 	<string>https://github.com/blacs30/bitwarden-alfred-workflow</string>
 </dict>
