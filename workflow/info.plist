@@ -1329,7 +1329,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<key>MODIFIER_4_ACTION</key>
 		<string>more</string>
 		<key>NO_MODIFIER_ACTION</key>
-		<string>password,card </string>
+		<string>password,card</string>
 		<key>OUTPUT_FOLDER</key>
 		<string></string>
 		<key>PATH</key>
