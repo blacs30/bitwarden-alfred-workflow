@@ -251,7 +251,7 @@ func setModAction(itemConfig *itemsModifierActionRelation, item Item, itemType s
 				title = fmt.Sprintf("%s - %s", item.Name, item.Login.Username)
 			}
 			if action == "password" {
-				subtitle := fmt.Sprintf("Copy password")
+				subtitle := "Copy password"
 				if modMode == "nomod" {
 					subtitle = fmt.Sprintf("↩ or ⇥ copy Password, %s %s, %s %s %s Show more", userEmoji, item.Login.Username, totp, url, moreEmoji)
 				}
@@ -270,7 +270,7 @@ func setModAction(itemConfig *itemsModifierActionRelation, item Item, itemType s
 			}
 			if action == "username" {
 				assignedIcon := iconUser
-				subtitle := fmt.Sprintf("Copy Username")
+				subtitle := "Copy Username"
 				if modMode == "nomod" {
 					assignedIcon = icon
 					subtitle = fmt.Sprintf("↩ or ⇥ copy Username, %s Password, %s %s %s Show more", passEmoji, totp, url, moreEmoji)
@@ -293,7 +293,7 @@ func setModAction(itemConfig *itemsModifierActionRelation, item Item, itemType s
 					continue
 				}
 				assignedIcon := iconLink
-				subtitle := fmt.Sprintf("Copy URL")
+				subtitle := "Copy URL"
 				if modMode == "nomod" {
 					assignedIcon = icon
 					subtitle = fmt.Sprintf("↩ or ⇥ copy URL, %s Password, %s Username %s %s Show more", passEmoji, userEmoji, totp, moreEmoji)
@@ -316,7 +316,7 @@ func setModAction(itemConfig *itemsModifierActionRelation, item Item, itemType s
 					continue
 				}
 				assignedIcon := iconUserClock
-				subtitle := fmt.Sprintf("Copy TOTP")
+				subtitle := "Copy TOTP"
 				if modMode == "nomod" {
 					assignedIcon = icon
 					subtitle = fmt.Sprintf("↩ or ⇥ copy TOTP, %s Password, %s Username %s %s Show more", passEmoji, userEmoji, url, moreEmoji)
@@ -355,7 +355,7 @@ func setModAction(itemConfig *itemsModifierActionRelation, item Item, itemType s
 				title = fmt.Sprintf("%s - %s", item.Name, item.Card.Number)
 			}
 			if action == "card" {
-				subtitle := fmt.Sprintf("Copy Card Number")
+				subtitle := "Copy Card Number"
 				if modMode == "nomod" {
 					subtitle = fmt.Sprintf("%s, %s, ↩ or ⇥ copy Card Number, %s copy Securitey Code, %s show more", item.Card.Brand, item.Card.Number, codeEmoji, moreEmoji)
 				}
@@ -373,7 +373,7 @@ func setModAction(itemConfig *itemsModifierActionRelation, item Item, itemType s
 				setItemMod(itemConfig, modItem, itemType, modMode)
 			}
 			if action == "code" {
-				subtitle := fmt.Sprintf("Copy card security code")
+				subtitle := "Copy card security code"
 				if modMode == "nomod" {
 					subtitle = fmt.Sprintf("%s, %s, ↩ or ⇥ copy Security Code, %s copy Card Number, %s show more", item.Card.Brand, item.Card.Number, cardEmoji, moreEmoji)
 				}

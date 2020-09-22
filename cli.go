@@ -638,7 +638,7 @@ func runSearch(folderSearch bool, itemId string) {
 			UID("").
 			Icon(iconFolder).
 			Var("action", "-search").
-			Arg(fmt.Sprintf("%s", conf.BwfKeyword))
+			Arg(conf.BwfKeyword)
 
 		for _, item := range items {
 			if item.FolderId == itemId {
@@ -664,7 +664,7 @@ func runSearch(folderSearch bool, itemId string) {
 			UID("").
 			Icon(iconFolder).
 			Var("action", "-search").
-			Arg(fmt.Sprintf("%s", conf.BwfKeyword))
+			Arg(conf.BwfKeyword)
 
 		log.Printf("Number of items %d", len(items))
 		for _, item := range items {

@@ -19,7 +19,7 @@ func addItemDetails(item Item, autoFetchCache bool) {
 		Subtitle("Go back one level to the normal search").Valid(true).
 		Icon(iconLevelUp).
 		Var("action", "-search").
-		Arg(fmt.Sprintf("%s", conf.BwKeyword)).
+		Arg(conf.BwKeyword).
 		Var("notification", "")
 	//item.Name
 	wf.NewItem(fmt.Sprintf("Detail view for: %s", item.Name)).
