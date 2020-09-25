@@ -65,8 +65,9 @@ jobs:
           flags: unittests
           fail_ci_if_error: true
 
-      - name: Go report card
-        uses: creekorful/goreportcard-action@v1.0
+# URL currently unreachable https://goreportcard.com/
+#      - name: Go report card
+#        uses: creekorful/goreportcard-action@v1.0
 
 
   build:
