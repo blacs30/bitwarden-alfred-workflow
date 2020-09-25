@@ -43,9 +43,15 @@ To use, activate Alfred and type `.bw` to trigger this workflow. From there:
 - type any search term to search for secrets/notes/identities/cards
 - modifier keys and actions are presented in the subtitle, different actions are available depending on the object type
 
+## Search- / Filtermode
+
+Up to version < 2.1.0 the *Fuzzy filtering a la Sublime Text* was default. Starting with version 2.1.0 Alfreds internal filtering is default.
+
+You can change the search-/filtermode yourself easily. This gif shows the 3 steps which need to be done for it:
+![Change filter mode](./assets/change-filter-mode.gif)
+
 ## Advanced Features / Configuration
 
-- ~~Fuzzy filtering a la Sublime Text is supported~~ -> Moved to the internal Alfred filter results.
 - Configurable [workflow environment variables](https://www.alfredapp.com/help/workflows/advanced/variables/#environment)
 
 | Name                      | Comment                                                                                                                                                                                               | Default Value                                                                       |
