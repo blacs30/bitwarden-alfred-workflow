@@ -171,5 +171,5 @@ A big thanks to all code contributors but also to everyone who creates issues an
 
   ![image](./assets/catalina-warning.png)
 
-  Per [the installation steps](https://github.com/blacs30/bitwarden-alfred-workfloww#installation), you **_MUST_** add Alfred to the list of Developer Tool exceptions for Alfred to run any workflow that contains an executable (like this one)
+  Per [the installation steps](https://github.com/blacs30/bitwarden-alfred-workflow#installation), you **_MUST_** add Alfred to the list of Developer Tool exceptions for Alfred to run any workflow that contains an executable (like this one)
 
