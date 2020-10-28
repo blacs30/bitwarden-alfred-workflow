@@ -106,7 +106,7 @@ func runSync(force bool, last bool) {
 			getItems()
 		}
 		fmt.Println(output)
-		err = wf.Cache.Store(SYNC_CACH_NAME, []byte(string("sync-cache")))
+		err = wf.Cache.Store(SYNC_CACHE_NAME, []byte(string("sync-cache")))
 		if err != nil {
 			log.Println(err)
 		}
@@ -200,7 +200,7 @@ func runGetItem() {
 	}
 	totp := opts.Totp
 	attachment := opts.Attachment
-	// first check if Bitwarden is logged in and locked
+	// first check if Bitwarden is logged in or locked
 	loginErr, unlockErr := BitwardenAuthChecks()
 	if loginErr != nil {
 		searchAlfred(fmt.Sprintf("%s login", conf.BwauthKeyword))

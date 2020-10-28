@@ -517,7 +517,7 @@ func runSearch(folderSearch bool, itemId string) {
 	}
 
 	// Check the sync cache, if it expired or doesn't exist do a sync.
-	if wf.Cache.Expired(SYNC_CACH_NAME, conf.SyncMaxCacheAge) || !wf.Cache.Exists(SYNC_CACH_NAME) {
+	if conf.SyncCacheAge != 0 && wf.Cache.Expired(SYNC_CACHE_NAME, conf.SyncMaxCacheAge) || !wf.Cache.Exists(SYNC_CACHE_NAME) {
 		if !wf.IsRunning("sync") {
 			cmd := exec.Command(os.Args[0], "-sync", "-force")
 			log.Println("Sync cmd: ", cmd)
