@@ -20,23 +20,19 @@ import (
 )
 
 const (
-	issueTrackerURL = "https://github.com/blacs30/bitwarden-alfred-workflow/issues"
-	forumThreadURL  = "https://www.alfredforum.com/topic/11705-bitwarden-cli-get-passwords-username-and-totp-from-bitwarden/"
-	repo            = "blacs30/bitwarden-alfred-workflow"
-)
-
-var (
-	wf *aw.Workflow
-	//BwExec            = ""
-	//BWAUTH_KEYWORD    = ""
-	//BWCONF_KEYWORD    = ""
-	//BW_KEYWORD        = ""
+	issueTrackerURL   = "https://github.com/blacs30/bitwarden-alfred-workflow/issues"
+	forumThreadURL    = "https://www.alfredforum.com/topic/11705-bitwarden-cli-get-passwords-username-and-totp-from-bitwarden/"
+	repo              = "blacs30/bitwarden-alfred-workflow"
 	CACHE_NAME        = "bw-items"
 	ICON_CACHE_NAME   = "icon-items"
 	FOLDER_CACHE_NAME = "bw-items-folders"
 	WORKFLOW_NAME     = "bitwarden-alfred-workflow"
 	AUTO_FETCH_CACHE  = "auto-fetch"
-	SYNC_CACH_NAME    = "sync-cache"
+	SYNC_CACHE_NAME   = "sync-cache"
+)
+
+var (
+	wf *aw.Workflow
 )
 
 func init() {
