@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"sync"
 )
 
 var (
@@ -66,7 +67,6 @@ func init() {
 	cli.BoolVar(&opts.Folder, "folder", false, "Filter Bitwarden Folders")
 	cli.StringVar(&opts.Id, "id", "", "Get item by id")
 	cli.StringVar(&opts.Attachment, "attachment", "", "set attachment id")
-	cli.StringVar(&opts.Output, "output", "", "set output folder")
 	cli.BoolVar(&opts.Login, "login", false, "login to Bitwarden")
 	cli.BoolVar(&opts.Logout, "logout", false, "logout Bitwarden")
 	cli.BoolVar(&opts.Sync, "sync", false, "sync secrets")
@@ -84,22 +84,26 @@ Alfred workflow to get secrets from Bitwarden.
 
 Usage:
     bitwarden-alfred-workflow [<query>]
-    bitwarden-alfred-workflow -conf [<query>]
     bitwarden-alfred-workflow -auth [<query>]
-    bitwarden-alfred-workflow -setsfaconfig [<setting>]
-    bitwarden-alfred-workflow -sfa [<query>]
-    bitwarden-alfred-workflow -open [<query>]
+    bitwarden-alfred-workflow -cache [-background]
+    bitwarden-alfred-workflow -conf [<query>]
+    bitwarden-alfred-workflow -folder [<query>]
+    bitwarden-alfred-workflow -getitem -id <id> [-totp] [-attachment <id>] [<query>] (query is used as jsonpath)
+    bitwarden-alfred-workflow -icons [-background]
     bitwarden-alfred-workflow -lock
-    bitwarden-alfred-workflow -unlock
     bitwarden-alfred-workflow -login
     bitwarden-alfred-workflow -logout
-    bitwarden-alfred-workflow -sync [--force|--last]
+    bitwarden-alfred-workflow -open [<query>]
+    bitwarden-alfred-workflow -output <query>
+    bitwarden-alfred-workflow -search <query>
+    bitwarden-alfred-workflow -setsfaconfig [<setting>]
+    bitwarden-alfred-workflow -sfa [<query>]
+    bitwarden-alfred-workflow -sync [-force|-last] [-background]
+    bitwarden-alfred-workflow -unlock
     bitwarden-alfred-workflow -h|-help
 
 Options:
 `)
-		// TODO: complete this list
-
 		cli.PrintDefaults()
 	}
 }
@@ -487,8 +491,29 @@ func runSfa() {
 
 // Filter Bitwarden secrets in Alfred
 func runSearch(folderSearch bool, itemId string) {
-	reordering := conf.ReorderingDisabled
-	if reordering {
+	email := conf.Email
+	sfa := conf.Sfa
+	sfaMode := conf.SfaMode
+	if !sfa {
+		sfaMode = -1
+	}
+
+	wf.Configure(aw.SuppressUIDs(true))
+	if bwData.UserId == "" {
+		message := "Need to login first."
+		if wf.Cache.Exists(CACHE_NAME) && wf.Cache.Exists(FOLDER_CACHE_NAME) {
+			message = "Need to login first to get secrets, reading cached no secret items only."
+		}
+		addLoginWarningItem(wf, email, sfaMode, message)
+	}
+
+	if bwData.UserId != "" && bwData.ProtectedKey == "" {
+		message := "Need to unlock first to get secrets, reading cached no secret items only."
+		addUnlockWarningItem(wf, email, message)
+	}
+
+	reorderingDisabled := conf.ReorderingDisabled
+	if reorderingDisabled {
 		wf.Configure(aw.SuppressUIDs(true))
 	}
 
@@ -517,6 +542,8 @@ func runSearch(folderSearch bool, itemId string) {
 	}
 
 	// Check the sync cache, if it expired or doesn't exist do a sync.
+	// don't sync if age is set to 0
+	// this cache is just a control to automatically trigger the sync, the data itself is stored in the data  cache (CACHE_NAME and FOLDER_CACHE_NAME)
 	if (conf.SyncCacheAge != 0 && wf.Cache.Expired(SYNC_CACHE_NAME, conf.SyncMaxCacheAge)) || !wf.Cache.Exists(SYNC_CACHE_NAME) {
 		if !wf.IsRunning("sync") {
 			cmd := exec.Command(os.Args[0], "-sync", "-force")
@@ -541,55 +568,25 @@ func runSearch(folderSearch bool, itemId string) {
 	if wf.Cache.Expired(CACHE_NAME, conf.MaxCacheAge) || wf.Cache.Expired(FOLDER_CACHE_NAME, conf.MaxCacheAge) {
 		wf.Rerun(0.3)
 		if !wf.IsRunning("cache") {
-			email := conf.Email
-			sfa := conf.Sfa
-			sfaMode := conf.SfaMode
-			if !sfa {
-				sfaMode = -1
-			}
+			var wg sync.WaitGroup
+			wg.Add(1)
+			run := checkBitwardenAuthInWorkflow(wf, &wg, email, sfaMode)
+			wg.Wait()
 
-			// check if logged in or locked first
-			loginErr, unlockErr := BitwardenAuthChecks()
-			if loginErr != nil {
-				wf.Rerun(0)
-				wf.NewItem("Login to Bitwarden").
-					Subtitle("↩ or ⇥ to login now").
-					Valid(true).
-					UID("login").
-					Icon(iconOn).
-					Var("action", "-login").
-					Arg("login", email, fmt.Sprintf("%d", sfaMode), map2faMode(sfaMode))
-				wf.NewWarningItem("Not logged in to Bitwarden.", "Need to login first.")
-				wf.SendFeedback()
-				return
-			}
-			if unlockErr != nil {
-				wf.Rerun(0)
-				wf.NewItem("Unlock Bitwarden").
-					Subtitle("↩ or ⇥ to unlock now").
-					Valid(true).
-					UID("unlock").
-					Icon(iconOn).
-					Var("action", "-unlock").
-					Arg("unlock", email)
-				wf.NewWarningItem("Bitwarden is locked.", "Need to unlock first.")
-				wf.SendFeedback()
-				return
-			}
-			// now we can run the background job
-			cmd := exec.Command(os.Args[0], "-cache")
-			if err := wf.RunInBackground("cache", cmd); err != nil {
-				wf.FatalError(err)
+			if run {
+				// now we can run the background job
+				cmd := exec.Command(os.Args[0], "-cache")
+				if err := wf.RunInBackground("cache", cmd); err != nil {
+					wf.FatalError(err)
+				}
 			}
 		} else {
 			log.Printf("Cache job already running.")
 		}
-		//if len(items)+len(folders) == 0 {
 		wf.NewItem("Refreshing Bitwarden cache…").
 			Icon(ReloadIcon())
 		wf.SendFeedback()
 		return
-		//}
 	}
 
 	// If iconcache enabled and the cache is expired (or doesn't exist)
@@ -612,7 +609,7 @@ func runSearch(folderSearch bool, itemId string) {
 
 	if itemId != "" && !folderSearch {
 		log.Printf(`showing items for id "%s" ...`, itemId)
-		// Add item to for itemId
+		// Add item to workflow for itemId
 		for _, item := range items {
 			if item.Id == itemId {
 				addItemDetails(item, autoFetchCache)
@@ -680,6 +677,51 @@ func runSearch(folderSearch bool, itemId string) {
 		}
 	}
 	wf.SendFeedback()
+}
+
+func addLoginWarningItem(wf *aw.Workflow, email string, sfaMode int, message string) {
+	wf.NewWarningItem("Not logged in to Bitwarden.", message)
+	wf.NewItem("Login to Bitwarden").
+		Subtitle("↩ or ⇥ to login now").
+		Valid(true).
+		UID("login").
+		Icon(iconOn).
+		Var("action", "-login").
+		Arg("login", email, fmt.Sprintf("%d", sfaMode), map2faMode(sfaMode))
+}
+
+func addUnlockWarningItem(wf *aw.Workflow, email string, message string) {
+	wf.NewWarningItem("Bitwarden is locked.", message)
+	wf.NewItem("Unlock Bitwarden").
+		Subtitle("↩ or ⇥ to unlock now").
+		Valid(true).
+		UID("unlock").
+		Icon(iconOn).
+		Var("action", "-unlock").
+		Arg("unlock", email)
+}
+
+func checkBitwardenAuthInWorkflow(wf *aw.Workflow, wg *sync.WaitGroup, email string, sfaMode int) bool {
+	// check if logged in or locked first
+	loginErr, unlockErr := BitwardenAuthChecks()
+	if loginErr != nil {
+		wf.Rerun(0)
+		message := "Need to login first."
+		addLoginWarningItem(wf, email, sfaMode, message)
+		wg.Done()
+		wf.SendFeedback()
+		return false
+	}
+	if unlockErr != nil {
+		wf.Rerun(0)
+		message := "Need to unlock first."
+		addUnlockWarningItem(wf, email, message)
+		wg.Done()
+		wf.SendFeedback()
+		return false
+	}
+	wg.Done()
+	return true
 }
 
 // Filter Bitwarden secrets in Alfred
