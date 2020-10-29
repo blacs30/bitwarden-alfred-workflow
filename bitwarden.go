@@ -9,6 +9,8 @@ import (
 	"github.com/blacs30/bitwarden-alfred-workflow/alfred"
 	aw "github.com/deanishe/awgo"
 	"github.com/oliveagle/jsonpath"
+	"github.com/tidwall/gjson"
+	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
@@ -16,26 +18,14 @@ import (
 	"time"
 )
 
-var (
+const (
 	NOT_LOGGED_IN_MSG = "Not logged in. Need to login first."
 	NOT_UNLOCKED_MSG  = "Not unlocked. Need to unlock first."
 )
 
 // Scan for projects and cache results
 func runSync(force bool, last bool) {
-	log.Println("Clearing items cache.")
-	err := wf.Cache.StoreJSON(CACHE_NAME, nil)
-	if err != nil {
-		log.Println(err)
-	}
-	err = wf.Cache.StoreJSON(FOLDER_CACHE_NAME, nil)
-	if err != nil {
-		log.Println(err)
-	}
-	err = wf.Cache.StoreJSON(AUTO_FETCH_CACHE, nil)
-	if err != nil {
-		log.Println(err)
-	}
+
 
 	wf.Configure(aw.TextErrors(true))
 	email := conf.Email
@@ -55,9 +45,10 @@ func runSync(force bool, last bool) {
 		return
 	}
 
-	log.Println("Background?", opts.Background)
 	if opts.Background {
+        log.Println("Runnung sync in background")
 		if !wf.IsRunning("sync") {
+            log.Printf("Starting sync job.")
 			cmd := exec.Command(os.Args[0], "-sync", "-force")
 			log.Println("Sync cmd: ", cmd)
 			if err := wf.RunInBackground("sync", cmd); err != nil {
@@ -88,6 +79,14 @@ func runSync(force bool, last bool) {
 			args = fmt.Sprintf("%s sync --session %s", conf.BwExec, token)
 		}
 
+		// Clear the cache only if not getting --last sync date
+		if !last {
+            err := clearCache()
+            if err != nil {
+                log.Print("Error while deleting Caches ", err)
+            }
+        }
+
 		result, err := runCmd(args, message)
 		if err != nil {
 			wf.FatalError(err)
@@ -101,14 +100,21 @@ func runSync(force bool, last bool) {
 			}
 			output = fmt.Sprintf("Last sync date:\n%s", formattedTime)
 		}
+        // Printing the "Last sync date" or the message "synced"
+        fmt.Println(output)
 
+		// run these steps only if not getting just the last sync date
 		if !last {
 			getItems()
-		}
-		fmt.Println(output)
-		err = wf.Cache.Store(SYNC_CACHE_NAME, []byte(string("sync-cache")))
-		if err != nil {
-			log.Println(err)
+
+            // Writing the sync-cache
+            err = wf.Cache.Store(SYNC_CACHE_NAME, []byte(string("sync-cache")))
+            if err != nil {
+                log.Println(err)
+            }
+
+            // Creating the items cache
+            runCache()
 		}
 		return
 	}
@@ -153,6 +159,7 @@ func getItems() {
 	popuplateCacheFolders(folders)
 }
 
+// runGetItems uses the Bitwarden CLI to get all items and returns them to the calling function
 func runGetItems(token string) []Item {
 	message := "Failed to get Bitwarden items."
 	args := fmt.Sprintf("%s list items --pretty --session %s", conf.BwExec, token)
@@ -185,35 +192,42 @@ func runGetItems(token string) []Item {
 	return items
 }
 
+// runGetItem gets a particular item from Bitwarden.
+// It first tries to read it directly from the data.json
+// if that fails it will use the Bitwarden CLI
 func runGetItem() {
 	wf.Configure(aw.TextErrors(true))
+
+	// checking if -id was sent together with -getitem
 	if opts.Id == "" {
 		wf.Fatal("No id sent.")
 		return
 	}
 	id := opts.Id
-	log.Println("Id is: ", id)
-	jsonPath := ""
+
+    // checking if -jsonpath was sent together with -getitem and -id
+    jsonPath := ""
 	if opts.Query != "" {
 		jsonPath = opts.Query
-		log.Println("Query is: ", jsonPath)
 	}
 	totp := opts.Totp
 	attachment := opts.Attachment
-	// first check if Bitwarden is logged in or locked
-	loginErr, unlockErr := BitwardenAuthChecks()
-	if loginErr != nil {
+
+	// this assumes that the data.json was read successfully at loadBitwardenJSON()
+	if bwData.UserId == "" {
 		searchAlfred(fmt.Sprintf("%s login", conf.BwauthKeyword))
 		wf.Fatal(NOT_LOGGED_IN_MSG)
 		return
 	}
-	if unlockErr != nil {
+
+    // this assumes that the data.json was read successfully at loadBitwardenJSON()
+    if bwData.UserId != "" && bwData.ProtectedKey == "" {
 		searchAlfred(fmt.Sprintf("%s unlock", conf.BwauthKeyword))
 		wf.Fatal(NOT_UNLOCKED_MSG)
 		return
 	}
 
-	// get a token
+	// get the token from keychain
 	wf.Configure(aw.TextErrors(true))
 	token, err := alfred.GetToken(wf)
 	if err != nil {
@@ -221,47 +235,100 @@ func runGetItem() {
 		return
 	}
 
-	message := "Failed to get Bitwarden item."
-	args := fmt.Sprintf("%s get item %s --pretty --session %s", conf.BwExec, id, token)
-	if totp {
-		args = fmt.Sprintf("%s get totp %s --session %s", conf.BwExec, id, token)
-	} else if attachment != "" {
-		args = fmt.Sprintf("%s get attachment %s --itemid %s --output %s --session %s --raw", conf.BwExec, attachment, id, conf.OutputFolder, token)
-	}
-	log.Println("Read item ", id)
-
-	result, err := runCmd(args, message)
-	if err != nil {
-		log.Printf("Error is:\n%s", err)
-		wf.FatalError(err)
-		return
-	}
-	// block here and return if no items (secrets) are found
-	if len(result) <= 0 {
-		log.Println("No items found.")
-		return
-	}
-
 	receivedItem := ""
-	if jsonPath != "" {
-		// jsonpath operation to get only required part of the item
-		singleString := strings.Join(result, " ")
-		var item interface{}
-		err = json.Unmarshal([]byte(singleString), &item)
+	isDecryptSecretFromJsonFailed := false
+
+	// handle attachments later, via Bitwarden CLI
+	// this decrypts the secrets in the data.json
+	if bwData.UserId != "" && (attachment == "") {
+        log.Printf("Getting item for id %s", id)
+		sourceKey, err := MakeDecryptKeyFromSession(bwData.ProtectedKey, token)
 		if err != nil {
-			log.Println(err)
+			log.Printf("Error making source key is:\n%s", err)
+			isDecryptSecretFromJsonFailed = true
 		}
-		res, err := jsonpath.JsonPathLookup(item, fmt.Sprintf("$.%s", jsonPath))
+
+		encryptedSecret := ""
+		if bwData.path != "" {
+			data, err := ioutil.ReadFile(bwData.path)
+			if err != nil {
+				log.Printf("Error reading file ", bwData.path)
+				isDecryptSecretFromJsonFailed = true
+			}
+			// replace starting bracket with dot as gsub uses a dot for the first group in an array
+			jsonPath = strings.Replace(jsonPath, "[", ".", -1)
+			jsonPath = strings.Replace(jsonPath, "]", "", -1)
+			if totp {
+				jsonPath = "login.totp"
+			}
+			value := gjson.Get(string(data), fmt.Sprintf("ciphers_%s.%s.%s", bwData.UserId, id, jsonPath))
+			if value.Exists() {
+				encryptedSecret = value.String()
+			} else {
+				log.Print("Error, value for gjson not found.")
+			}
+		}
+
+		decryptedString, err := DecryptString(encryptedSecret, sourceKey)
 		if err != nil {
-			log.Println(err)
+			log.Print(err)
+			isDecryptSecretFromJsonFailed = true
+		}
+		if totp {
+			decryptedString, err = otpKey(decryptedString)
+			if err != nil {
+			    log.Print("Error getting topt key, ", err)
+            }
+		}
+		receivedItem = decryptedString
+	} else if bwData.UserId == "" || isDecryptSecretFromJsonFailed || attachment != "" {
+	    // Run the Bitwarden CLI to get the secret
+	    // Use it also for getting attachments
+	    if attachment != "" {
+	        log.Printf("Getting attachment %s for id %s", attachment, id)
+        }
+
+		message := "Failed to get Bitwarden item."
+		args := fmt.Sprintf("%s get item %s --pretty --session %s", conf.BwExec, id, token)
+		if totp {
+			args = fmt.Sprintf("%s get totp %s --session %s", conf.BwExec, id, token)
+		} else if attachment != "" {
+			args = fmt.Sprintf("%s get attachment %s --itemid %s --output %s --session %s --raw", conf.BwExec, attachment, id, conf.OutputFolder, token)
+		}
+
+		result, err := runCmd(args, message)
+		if err != nil {
+			log.Printf("Error is:\n%s", err)
+			wf.FatalError(err)
 			return
 		}
-		receivedItem = fmt.Sprintf("%v", res)
-		if wf.Debug() {
-			log.Println(fmt.Sprintf("Received key is: %s*", receivedItem[0:2]))
+		// block here and return if no items (secrets) are found
+		if len(result) <= 0 {
+			log.Println("No items found.")
+			return
 		}
-	} else {
-		receivedItem = strings.Join(result, " ")
+
+		receivedItem = ""
+		if jsonPath != "" {
+			// jsonpath operation to get only required part of the item
+			singleString := strings.Join(result, " ")
+			var item interface{}
+			err = json.Unmarshal([]byte(singleString), &item)
+			if err != nil {
+				log.Println(err)
+			}
+			res, err := jsonpath.JsonPathLookup(item, fmt.Sprintf("$.%s", jsonPath))
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			receivedItem = fmt.Sprintf("%v", res)
+			if wf.Debug() {
+				log.Println(fmt.Sprintf("Received key is: %s*", receivedItem[0:2]))
+			}
+		} else {
+			receivedItem = strings.Join(result, " ")
+		}
 	}
 	fmt.Print(receivedItem)
 }
@@ -480,19 +547,10 @@ func runLogout() {
 }
 
 func runCache() {
-	log.Println("Clearing items cache.")
-	err := wf.Cache.StoreJSON(CACHE_NAME, nil)
-	if err != nil {
-		log.Println(err)
-	}
-	err = wf.Cache.StoreJSON(FOLDER_CACHE_NAME, nil)
-	if err != nil {
-		log.Println(err)
-	}
-	err = wf.Cache.StoreJSON(AUTO_FETCH_CACHE, nil)
-	if err != nil {
-		log.Println(err)
-	}
+    err := clearCache()
+    if err != nil {
+        log.Print("Error while deleting Caches ", err)
+    }
 
 	wf.Configure(aw.TextErrors(true))
 	email := conf.Email
