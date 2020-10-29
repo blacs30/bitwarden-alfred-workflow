@@ -4,7 +4,9 @@
 package main
 
 import (
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
@@ -90,4 +92,111 @@ func Decrypt() ([]byte, error) {
 		log.Print("invalid message")
 	}
 	return msg, nil
+}
+
+// These notes helped a lot https://github.com/attie/bitwarden-decrypt
+// as well as this repo https://github.com/mvdan/bitw
+// and https://github.com/philhug/bitwarden-client-go
+const (
+	AesCbc256_B64                     = iota
+	AesCbc128_HmacSha256_B64          = iota
+	AesCbc256_HmacSha256_B64          = iota
+	Rsa2048_OaepSha256_B64            = iota
+	Rsa2048_OaepSha1_B64              = iota
+	Rsa2048_OaepSha256_HmacSha256_B64 = iota
+	Rsa2048_OaepSha1_HmacSha256_B64   = iota
+)
+
+type CipherString struct {
+	encryptedString      string
+	encryptionType       int
+	decryptedValue       string
+	cipherText           string
+	initializationVector string
+	mac                  string
+}
+
+type CryptoKey struct {
+	EncKey         []byte
+	MacKey         []byte
+	EncryptionType int
+}
+
+// TODO: split up into functions
+func MakeDecryptKeyFromSession(protectedKey string, sessionKey string) (CryptoKey, error) {
+	pt, err := base64.StdEncoding.DecodeString(protectedKey)
+	if err != nil {
+		log.Print("Error decoding protectedKey, ", err)
+	}
+	// following every step from here:
+	// https://github.com/attie/bitwarden-decrypt#protected-session-data
+	encryptionType := pt[:1]
+	encryptionTypeInt := int(encryptionType[0])
+	iv := pt[1:17]
+	pkmac := pt[17:49]
+	ct := pt[49:]
+
+	// and now here:
+	// https://github.com/attie/bitwarden-decrypt#derive-source-key-from-protected-session-data
+	ses, err := base64.StdEncoding.DecodeString(sessionKey)
+	if err != nil {
+		log.Print("Error decoding sessionKey, ", err)
+	}
+	sesec := ses[:32]
+	sesmac := ses[32:64]
+
+	mac := hmac.New(sha256.New, sesmac)
+	mac.Write(iv)
+	mac.Write(ct)
+	ms := mac.Sum(nil)
+	if base64.StdEncoding.EncodeToString(ms) != base64.StdEncoding.EncodeToString(pkmac) {
+		log.Printf("MAC doesn't match %s %s", base64.StdEncoding.EncodeToString(pkmac), base64.StdEncoding.EncodeToString(ms))
+	}
+
+	// and this one now:
+	// https://github.com/attie/bitwarden-decrypt#decrypt
+	cs := CipherString{
+		encryptedString:      "",
+		encryptionType:       encryptionTypeInt,
+		decryptedValue:       "",
+		cipherText:           base64.StdEncoding.EncodeToString(ct),
+		initializationVector: base64.StdEncoding.EncodeToString(iv),
+		mac:                  base64.StdEncoding.EncodeToString(pkmac),
+	}
+
+	ck := CryptoKey{
+		EncKey:         sesec,
+		MacKey:         sesmac,
+		EncryptionType: 2,
+	}
+	sourceKey, err := cs.DecryptKey(ck, 2)
+	if err != nil {
+		log.Print("Error decrypting key, ", err)
+	}
+
+	// making now the intermediate keys:
+	// https://github.com/attie/bitwarden-decrypt#derive-intermediate-keys-from-source-key
+	interKeys, err := MakeIntermediateKeys(sourceKey)
+	if err != nil {
+		log.Print("Error making intermediate keys, ", err)
+	}
+
+	// finally decrypting the real users encryption key:
+	// https://github.com/attie/bitwarden-decrypt#decrypt-the-users-final-keys
+	ekCs, err := NewCipherString(bwData.EncKey)
+	if err != nil {
+		log.Print("Error making cipherstring from encKey, ", err)
+	}
+	userDecryptKey, err := ekCs.DecryptKey(interKeys, ekCs.encryptionType)
+	if err != nil {
+		log.Print("Error decrypting key, ", err)
+	}
+	tmpKeyEnc := userDecryptKey[:32]
+	tmpKeyMac := userDecryptKey[32:64]
+	userKey := CryptoKey{
+		EncKey:         tmpKeyEnc,
+		MacKey:         tmpKeyMac,
+		EncryptionType: 2,
+	}
+	return userKey, err
 }
