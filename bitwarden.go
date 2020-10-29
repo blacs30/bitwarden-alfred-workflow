@@ -251,7 +251,7 @@ func runGetItem() {
 		if bwData.path != "" {
 			data, err := ioutil.ReadFile(bwData.path)
 			if err != nil {
-				log.Printf("Error reading file ", bwData.path)
+				log.Print("Error reading file ", bwData.path)
 				isDecryptSecretFromJsonFailed = true
 			}
 			// replace starting bracket with dot as gsub uses a dot for the first group in an array
@@ -280,7 +280,8 @@ func runGetItem() {
 			}
 		}
 		receivedItem = decryptedString
-	} else if bwData.UserId == "" || isDecryptSecretFromJsonFailed || attachment != "" {
+	}
+	if bwData.UserId == "" || isDecryptSecretFromJsonFailed || attachment != "" {
 		// Run the Bitwarden CLI to get the secret
 		// Use it also for getting attachments
 		if attachment != "" {

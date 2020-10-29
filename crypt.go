@@ -145,9 +145,18 @@ func MakeDecryptKeyFromSession(protectedKey string, sessionKey string) (CryptoKe
 	sesec := ses[:32]
 	sesmac := ses[32:64]
 
+	// the key which will be returned later, or empty in case of error
+	ck := CryptoKey{}
+
 	mac := hmac.New(sha256.New, sesmac)
-	mac.Write(iv)
-	mac.Write(ct)
+	_, err = mac.Write(iv)
+	if err != nil {
+		return ck, err
+	}
+	_, err = mac.Write(ct)
+	if err != nil {
+		return ck, err
+	}
 	ms := mac.Sum(nil)
 	if base64.StdEncoding.EncodeToString(ms) != base64.StdEncoding.EncodeToString(pkmac) {
 		log.Printf("MAC doesn't match %s %s", base64.StdEncoding.EncodeToString(pkmac), base64.StdEncoding.EncodeToString(ms))
@@ -164,7 +173,7 @@ func MakeDecryptKeyFromSession(protectedKey string, sessionKey string) (CryptoKe
 		mac:                  base64.StdEncoding.EncodeToString(pkmac),
 	}
 
-	ck := CryptoKey{
+	ck = CryptoKey{
 		EncKey:         sesec,
 		MacKey:         sesmac,
 		EncryptionType: 2,

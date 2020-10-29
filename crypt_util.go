@@ -122,8 +122,14 @@ func (cs *CipherString) Decrypt(key CryptoKey) ([]byte, error) {
 
 	if cs.mac != "" {
 		mac := hmac.New(sha256.New, key.MacKey)
-		mac.Write(iv)
-		mac.Write(ct)
+		_, err = mac.Write(iv)
+		if err != nil {
+			return nil, err
+		}
+		_, err = mac.Write(ct)
+		if err != nil {
+			return nil, err
+		}
 		ms := mac.Sum(nil)
 		if base64.StdEncoding.EncodeToString(ms) != cs.mac {
 			return ct, fmt.Errorf("MAC doesn't match %s %s", cs.mac, base64.StdEncoding.EncodeToString(ms))
