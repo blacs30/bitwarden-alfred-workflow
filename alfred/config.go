@@ -1,11 +1,9 @@
 package alfred
 
 import (
-	"encoding/json"
 	"fmt"
 	aw "github.com/deanishe/awgo"
 	"github.com/jychri/tilde"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -27,24 +25,16 @@ func GetOutputFolder(wf *aw.Workflow, folder string) string {
 	return folder
 }
 
-func GetEmail(wf *aw.Workflow, email string) string {
-	if email == "" {
-		var bwData BwData
-		succ, err := OpenBitwardenData(&bwData)
+func GetEmail(wf *aw.Workflow, configEmail string, bwEmail string) string {
+	if configEmail == "" {
+		err := SetEmail(wf, bwEmail)
 		if err != nil {
 			log.Println(err)
 			return ""
 		}
-		if succ {
-			err := SetEmail(wf, bwData.UserEmail)
-			if err != nil {
-				log.Println(err)
-				return ""
-			}
-			email = bwData.UserEmail
-		}
+		configEmail = bwEmail
 	}
-	return email
+	return configEmail
 }
 
 //Set keys
@@ -62,33 +52,4 @@ func SetSfa(wf *aw.Workflow, enabled string) error {
 
 func SetSfaMode(wf *aw.Workflow, id string) error {
 	return wf.Config.Set("2FA_MODE", id, true).Do()
-}
-
-func OpenBitwardenData(bwData interface{}) (bool, error) {
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		return false, err
-	}
-	bwDataPath := fmt.Sprintf("%s/Library/Application Support/Bitwarden CLI/data.json", homedir)
-	log.Println("BW DataPath", bwDataPath)
-	if _, err := os.Stat(bwDataPath); err != nil {
-		log.Println("Couldn't find the Bitwarden data.json ", err)
-		return false, err
-	}
-	data, err := ioutil.ReadFile(bwDataPath)
-	if err != nil {
-		return false, err
-	}
-	if err := json.Unmarshal(data, &bwData); err != nil {
-		log.Printf("Couldn't load the items cache, error: %s", err)
-		return false, err
-	}
-	log.Println("Got existing Bitwarden CLI data")
-	return true, nil
-}
-
-type BwData struct {
-	InstalledVersion string                 `json:"installedVersion"`
-	UserEmail        string                 `json:"userEmail"`
-	Unused           map[string]interface{} `json:"-"`
 }
