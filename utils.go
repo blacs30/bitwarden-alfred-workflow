@@ -131,3 +131,20 @@ func typeName(typeInt int) string {
 	}
 	return "Type Name Not Found"
 }
+
+func clearCache() error {
+	log.Println("Clearing items cache.")
+	err := wf.Cache.StoreJSON(CACHE_NAME, nil)
+	if err != nil {
+		return err
+	}
+	err = wf.Cache.StoreJSON(FOLDER_CACHE_NAME, nil)
+	if err != nil {
+		return err
+	}
+	err = wf.Cache.StoreJSON(AUTO_FETCH_CACHE, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
