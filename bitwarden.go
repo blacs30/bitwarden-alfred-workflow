@@ -26,7 +26,6 @@ const (
 // Scan for projects and cache results
 func runSync(force bool, last bool) {
 
-
 	wf.Configure(aw.TextErrors(true))
 	email := conf.Email
 	if email == "" {
@@ -46,9 +45,9 @@ func runSync(force bool, last bool) {
 	}
 
 	if opts.Background {
-        log.Println("Runnung sync in background")
+		log.Println("Runnung sync in background")
 		if !wf.IsRunning("sync") {
-            log.Printf("Starting sync job.")
+			log.Printf("Starting sync job.")
 			cmd := exec.Command(os.Args[0], "-sync", "-force")
 			log.Println("Sync cmd: ", cmd)
 			if err := wf.RunInBackground("sync", cmd); err != nil {
@@ -81,11 +80,11 @@ func runSync(force bool, last bool) {
 
 		// Clear the cache only if not getting --last sync date
 		if !last {
-            err := clearCache()
-            if err != nil {
-                log.Print("Error while deleting Caches ", err)
-            }
-        }
+			err := clearCache()
+			if err != nil {
+				log.Print("Error while deleting Caches ", err)
+			}
+		}
 
 		result, err := runCmd(args, message)
 		if err != nil {
@@ -100,21 +99,21 @@ func runSync(force bool, last bool) {
 			}
 			output = fmt.Sprintf("Last sync date:\n%s", formattedTime)
 		}
-        // Printing the "Last sync date" or the message "synced"
-        fmt.Println(output)
+		// Printing the "Last sync date" or the message "synced"
+		fmt.Println(output)
 
 		// run these steps only if not getting just the last sync date
 		if !last {
 			getItems()
 
-            // Writing the sync-cache
-            err = wf.Cache.Store(SYNC_CACHE_NAME, []byte(string("sync-cache")))
-            if err != nil {
-                log.Println(err)
-            }
+			// Writing the sync-cache
+			err = wf.Cache.Store(SYNC_CACHE_NAME, []byte(string("sync-cache")))
+			if err != nil {
+				log.Println(err)
+			}
 
-            // Creating the items cache
-            runCache()
+			// Creating the items cache
+			runCache()
 		}
 		return
 	}
@@ -205,8 +204,8 @@ func runGetItem() {
 	}
 	id := opts.Id
 
-    // checking if -jsonpath was sent together with -getitem and -id
-    jsonPath := ""
+	// checking if -jsonpath was sent together with -getitem and -id
+	jsonPath := ""
 	if opts.Query != "" {
 		jsonPath = opts.Query
 	}
@@ -220,8 +219,8 @@ func runGetItem() {
 		return
 	}
 
-    // this assumes that the data.json was read successfully at loadBitwardenJSON()
-    if bwData.UserId != "" && bwData.ProtectedKey == "" {
+	// this assumes that the data.json was read successfully at loadBitwardenJSON()
+	if bwData.UserId != "" && bwData.ProtectedKey == "" {
 		searchAlfred(fmt.Sprintf("%s unlock", conf.BwauthKeyword))
 		wf.Fatal(NOT_UNLOCKED_MSG)
 		return
@@ -241,7 +240,7 @@ func runGetItem() {
 	// handle attachments later, via Bitwarden CLI
 	// this decrypts the secrets in the data.json
 	if bwData.UserId != "" && (attachment == "") {
-        log.Printf("Getting item for id %s", id)
+		log.Printf("Getting item for id %s", id)
 		sourceKey, err := MakeDecryptKeyFromSession(bwData.ProtectedKey, token)
 		if err != nil {
 			log.Printf("Error making source key is:\n%s", err)
@@ -277,16 +276,16 @@ func runGetItem() {
 		if totp {
 			decryptedString, err = otpKey(decryptedString)
 			if err != nil {
-			    log.Print("Error getting topt key, ", err)
-            }
+				log.Print("Error getting topt key, ", err)
+			}
 		}
 		receivedItem = decryptedString
 	} else if bwData.UserId == "" || isDecryptSecretFromJsonFailed || attachment != "" {
-	    // Run the Bitwarden CLI to get the secret
-	    // Use it also for getting attachments
-	    if attachment != "" {
-	        log.Printf("Getting attachment %s for id %s", attachment, id)
-        }
+		// Run the Bitwarden CLI to get the secret
+		// Use it also for getting attachments
+		if attachment != "" {
+			log.Printf("Getting attachment %s for id %s", attachment, id)
+		}
 
 		message := "Failed to get Bitwarden item."
 		args := fmt.Sprintf("%s get item %s --pretty --session %s", conf.BwExec, id, token)
@@ -547,10 +546,10 @@ func runLogout() {
 }
 
 func runCache() {
-    err := clearCache()
-    if err != nil {
-        log.Print("Error while deleting Caches ", err)
-    }
+	err := clearCache()
+	if err != nil {
+		log.Print("Error while deleting Caches ", err)
+	}
 
 	wf.Configure(aw.TextErrors(true))
 	email := conf.Email
