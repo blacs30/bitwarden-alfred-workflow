@@ -1298,6 +1298,8 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<string>0</string>
 		<key>AUTO_FETCH_ICON_CACHE_AGE</key>
 		<string>1440</string>
+		<key>BW_DATA_PATH</key>
+		<string></string>
 		<key>BW_EXEC</key>
 		<string>bw</string>
 		<key>CACHE_AGE</key>
@@ -1357,7 +1359,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<string>SERVER_URL</string>
 	</array>
 	<key>version</key>
-	<string>2.1.1</string>
+	<string>2.2.0</string>
 	<key>webaddress</key>
 	<string>https://github.com/blacs30/bitwarden-alfred-workflow</string>
 </dict>
