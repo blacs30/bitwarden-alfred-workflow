@@ -23,6 +23,26 @@ func DecryptString(s string, mk CryptoKey) (string, error) {
 	return string(rv), err
 }
 
+func NewCryptoKey(key []byte, encryptionType int) (CryptoKey, error) {
+	c := CryptoKey{EncryptionType: encryptionType}
+
+	switch encryptionType {
+	case AesCbc256_B64:
+		c.EncKey = key
+	case AesCbc256_HmacSha256_B64:
+		c.EncKey = key[:32]
+		c.MacKey = key[32:]
+	default:
+		return c, fmt.Errorf("invalid encryption type: %d", encryptionType)
+	}
+
+	if len(key) != (len(c.EncKey) + len(c.MacKey)) {
+		return c, fmt.Errorf("invalid key size: %d", len(key))
+	}
+
+	return c, nil
+}
+
 func DecryptValue(s string, mk CryptoKey) ([]byte, error) {
 	if s == "" {
 		return []byte(""), nil
@@ -37,25 +57,26 @@ func DecryptValue(s string, mk CryptoKey) ([]byte, error) {
 	return rv, err
 }
 
-func (cs *CipherString) DecryptKey(key CryptoKey, encryptionType int) ([]byte, error) {
-	if encryptionType != 2 {
-		return nil, fmt.Errorf("encryption type not supported %d", encryptionType)
-	}
+func (cs *CipherString) DecryptKey(key CryptoKey, encryptionType int) (CryptoKey, error) {
 	kb, err := cs.Decrypt(key)
-	return kb, err
+	if err != nil {
+		return CryptoKey{}, err
+	}
+	k, err := NewCryptoKey(kb, encryptionType)
+	return k, err
 }
 
-func MakeIntermediateKeys(sourceKey []byte) (CryptoKey, error) {
+func MakeIntermediateKeys(sourceKey CryptoKey) (CryptoKey, error) {
 	tmpKeyEnc := make([]byte, 32)
 	tmpKeyMac := make([]byte, 32)
 	var r io.Reader
-	r = hkdf.Expand(sha256.New, sourceKey, []byte("enc"))
+	r = hkdf.Expand(sha256.New, sourceKey.EncKey, []byte("enc"))
 	_, err := r.Read(tmpKeyEnc)
 	if err != nil {
 		return CryptoKey{}, err
 	}
 
-	r = hkdf.Expand(sha256.New, sourceKey, []byte("mac"))
+	r = hkdf.Expand(sha256.New, sourceKey.EncKey, []byte("mac"))
 	_, err = r.Read(tmpKeyMac)
 	if err != nil {
 		return CryptoKey{}, err
@@ -84,6 +105,7 @@ func NewCipherString(encryptedString string) (*CipherString, error) {
 		return nil, errors.New("invalid key header")
 	}
 
+	debugLog(fmt.Sprintf("cs.encryptionType %d", cs.encryptionType))
 	switch cs.encryptionType {
 	case AesCbc256_B64:
 		if len(encPieces) != 2 {

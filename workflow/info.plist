@@ -1303,7 +1303,9 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<key>BW_EXEC</key>
 		<string>bw</string>
 		<key>CACHE_AGE</key>
-		<string>1440</string>
+		<string>0</string>
+		<key>DEBUG</key>
+		<string>false</string>
 		<key>EMAIL</key>
 		<string></string>
 		<key>EMPTY_DETAIL_RESULTS</key>
@@ -1341,7 +1343,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<key>SERVER_URL</key>
 		<string>https://bitwarden.com</string>
 		<key>SYNC_CACHE_AGE</key>
-		<string>1440</string>
+		<string>0</string>
 		<key>TITLE_WITH_USER</key>
 		<string>true</string>
 		<key>bw_keyword</key>

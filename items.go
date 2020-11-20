@@ -528,7 +528,7 @@ func addNewModifierItem(item *aw.Item, modifier modifierActionRelation) {
 
 func addRefreshCacheItem() {
 	wf.NewItem("Refresh Bitwardens Secret Cache").
-		Subtitle("Fill the cache with cleaned Bitwarden secrets (the real secrets, are not kept in the cached)").
+		Subtitle("Fill the cache with cleaned Bitwarden secrets (the real secrets are not kept in the cached)").
 		Valid(true).
 		UID("cache").
 		Icon(ReloadIcon()).

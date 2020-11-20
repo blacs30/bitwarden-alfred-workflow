@@ -541,10 +541,10 @@ func runSearch(folderSearch bool, itemId string) {
 		}
 	}
 
-	// Check the sync cache, if it expired or doesn't exist do a sync.
+	// Check the sync cache, if it expired.
 	// don't sync if age is set to 0
 	// this cache is just a control to automatically trigger the sync, the data itself is stored in the data  cache (CACHE_NAME and FOLDER_CACHE_NAME)
-	if (conf.SyncCacheAge != 0 && wf.Cache.Expired(SYNC_CACHE_NAME, conf.SyncMaxCacheAge)) || !wf.Cache.Exists(SYNC_CACHE_NAME) {
+	if conf.SyncCacheAge != 0 && wf.Cache.Expired(SYNC_CACHE_NAME, conf.SyncMaxCacheAge) {
 		if !wf.IsRunning("sync") {
 			cmd := exec.Command(os.Args[0], "-sync", "-force")
 			log.Println("Sync cmd: ", cmd)
@@ -565,7 +565,7 @@ func runSearch(folderSearch bool, itemId string) {
 	// If the cache has expired, set Rerun (which tells Alfred to re-run the
 	// workflow), and start the background update process if it isn't already
 	// running.
-	if wf.Cache.Expired(CACHE_NAME, conf.MaxCacheAge) || wf.Cache.Expired(FOLDER_CACHE_NAME, conf.MaxCacheAge) {
+	if conf.CacheAge != 0 && (wf.Cache.Expired(CACHE_NAME, conf.MaxCacheAge) || wf.Cache.Expired(FOLDER_CACHE_NAME, conf.MaxCacheAge)) {
 		wf.Rerun(0.3)
 		if !wf.IsRunning("cache") {
 			var wg sync.WaitGroup
@@ -651,7 +651,7 @@ func runSearch(folderSearch bool, itemId string) {
 
 	if len(items) == 0 && len(folders) == 0 {
 		addRefreshCacheItem()
-		wf.WarnEmpty("No Secrets Found", "Try a different query or refresh the cache manually.")
+		wf.NewItem("No Secrets Found").Subtitle("Try a different query or refresh the cache or sync manually.").Icon(iconWarning).Valid(false)
 	}
 
 	if !folderSearch && itemId == "" {

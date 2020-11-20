@@ -64,7 +64,11 @@ func checkReturn(status cmd.Status, message string) ([]string, error) {
 				log.Println("[DEBUG] Stderr: => ", line)
 			}
 		}
-		return []string{}, fmt.Errorf("Unexpected error. Exit code %d.", exitCode)
+		errMessage := ""
+		for _, line := range status.Stderr {
+			errMessage += fmt.Sprintf(" %s", line)
+		}
+		return []string{}, fmt.Errorf("Unexpected error. Exit code %d. Has the session key changed?\n[ERROR] %s", exitCode, errMessage)
 	}
 }
 
@@ -147,4 +151,10 @@ func clearCache() error {
 		return err
 	}
 	return nil
+}
+
+func debugLog(message string) {
+	if conf.Debug {
+		log.Print("[DEBUG] ", message)
+	}
 }

@@ -85,6 +85,7 @@ type config struct {
 	// BwDataPath default is set in loadBitwardenJSON()
 	BwDataPath         string `envconfig:"BW_DATA_PATH"`
 	CacheAge           int    `default:"1440" split_words:"true"`
+	Debug              bool   `envconfig:"DEBUG" default:"false"`
 	Email              string
 	EmptyDetailResults bool `default:"false" split_words:"true"`
 	IconCacheAge       int  `default:"43200" split_words:"true"`
@@ -138,7 +139,7 @@ func loadBitwardenJSON() error {
 			return err
 		}
 		bwDataPath = fmt.Sprintf("%s/Library/Application Support/Bitwarden CLI/data.json", homedir)
-		log.Println("BW DataPath", bwDataPath)
+		debugLog(fmt.Sprintf("bwDataPath is: %s", bwDataPath))
 	}
 	if err := loadDataFile(bwDataPath); err != nil {
 		return err
@@ -178,7 +179,11 @@ func loadConfig() {
 	conf.OutputFolder = alfred.GetOutputFolder(wf, conf.OutputFolder)
 
 	// Set a few cache timeout durations
-	cacheAgeDuration := time.Duration(conf.CacheAge)
+	setItemCacheAge := conf.CacheAge
+	if conf.CacheAge < 30 && conf.CacheAge != 0 {
+		setItemCacheAge = 30
+	}
+	cacheAgeDuration := time.Duration(setItemCacheAge)
 	conf.MaxCacheAge = cacheAgeDuration * time.Minute
 
 	iconCacheAgeDuration := time.Duration(conf.IconCacheAge)
@@ -187,7 +192,12 @@ func loadConfig() {
 	autoFetchIconCacheAgeDuration := time.Duration(conf.AutoFetchIconCacheAge)
 	conf.AutoFetchIconMaxCacheAge = autoFetchIconCacheAgeDuration * time.Minute
 
-	syncCacheAgeDuration := time.Duration(conf.SyncCacheAge)
+	// if SYNC_CACHE_AGE is lower than 30 but not 0 set to 30
+	setSyncCacheAge := conf.SyncCacheAge
+	if conf.SyncCacheAge < 30 && conf.SyncCacheAge != 0 {
+		setSyncCacheAge = 30
+	}
+	syncCacheAgeDuration := time.Duration(setSyncCacheAge)
 	conf.SyncMaxCacheAge = syncCacheAgeDuration * time.Minute
 
 	conf.BwauthKeyword = os.Getenv("bwauth_keyword")

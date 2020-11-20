@@ -50,7 +50,7 @@ func Encrypt(message []byte) (string, bool) {
 }
 
 func Decrypt() ([]byte, error) {
-	log.Println("Decrypting data now.")
+	log.Println("Decrypting data.")
 	encryptedHex, err := wf.Cache.Load(CACHE_NAME)
 	if err != nil {
 		log.Println(err)
@@ -124,30 +124,47 @@ type CryptoKey struct {
 
 // TODO: split up into functions
 func MakeDecryptKeyFromSession(protectedKey string, sessionKey string) (CryptoKey, error) {
+	// the key which will be returned later, or empty in case of error
+	ck := CryptoKey{}
+
+	debugLog("base64 decode protected key")
 	pt, err := base64.StdEncoding.DecodeString(protectedKey)
 	if err != nil {
-		log.Print("Error decoding protectedKey, ", err)
+		return ck, fmt.Errorf("error decoding protectedKey, %s", err)
 	}
 	// following every step from here:
 	// https://github.com/attie/bitwarden-decrypt#protected-session-data
+	debugLog(fmt.Sprintf("protected Key length is: %d", len(pt)))
+	if len(pt) > 1 {
+		debugLog(fmt.Sprintf("protected Key encryption type is: %d", int(pt[0])))
+	}
+
+	// check length, return error if they key is probably to short so that we continue using the normal bw cli client
+	if len(pt) < 51 {
+		log.Print("protected key length is probably too short, returning with error. length is: ", len(pt))
+		return ck, fmt.Errorf("protected key length is probably too short")
+	}
 	encryptionType := pt[:1]
 	encryptionTypeInt := int(encryptionType[0])
 	iv := pt[1:17]
 	pkmac := pt[17:49]
 	ct := pt[49:]
 
-	// and now here:
 	// https://github.com/attie/bitwarden-decrypt#derive-source-key-from-protected-session-data
+	debugLog("base64 decode session key")
 	ses, err := base64.StdEncoding.DecodeString(sessionKey)
 	if err != nil {
-		log.Print("Error decoding sessionKey, ", err)
+		return ck, fmt.Errorf("error decoding sessionKey, %s", err)
+	}
+	debugLog(fmt.Sprintf("Session key length is: %d", len(ses)))
+	if len(ses) != 64 {
+		log.Print("session key length is too short, returning with error. length is: ", len(ses))
+		return ck, fmt.Errorf("session key length is too short")
 	}
 	sesec := ses[:32]
 	sesmac := ses[32:64]
 
-	// the key which will be returned later, or empty in case of error
-	ck := CryptoKey{}
-
+	debugLog("comparing session mac with protected key")
 	mac := hmac.New(sha256.New, sesmac)
 	_, err = mac.Write(iv)
 	if err != nil {
@@ -160,10 +177,12 @@ func MakeDecryptKeyFromSession(protectedKey string, sessionKey string) (CryptoKe
 	ms := mac.Sum(nil)
 	if base64.StdEncoding.EncodeToString(ms) != base64.StdEncoding.EncodeToString(pkmac) {
 		log.Printf("MAC doesn't match %s %s", base64.StdEncoding.EncodeToString(pkmac), base64.StdEncoding.EncodeToString(ms))
+		return ck, fmt.Errorf("MACs don't match of protectedkey and session key")
 	}
 
-	// and this one now:
+	// makeing the sourcekey
 	// https://github.com/attie/bitwarden-decrypt#decrypt
+	debugLog("making the source key")
 	cs := CipherString{
 		encryptedString:      "",
 		encryptionType:       encryptionTypeInt,
@@ -178,33 +197,41 @@ func MakeDecryptKeyFromSession(protectedKey string, sessionKey string) (CryptoKe
 		MacKey:         sesmac,
 		EncryptionType: 2,
 	}
-	sourceKey, err := cs.DecryptKey(ck, 2)
+	sourceKey, err := cs.DecryptKey(ck, ck.EncryptionType)
 	if err != nil {
-		log.Print("Error decrypting key, ", err)
+		return ck, fmt.Errorf("error decrypting key, %s", err)
 	}
 
-	// making now the intermediate keys:
+	// making the intermediate keys:
 	// https://github.com/attie/bitwarden-decrypt#derive-intermediate-keys-from-source-key
+	debugLog("making intermediate keys")
 	interKeys, err := MakeIntermediateKeys(sourceKey)
 	if err != nil {
-		log.Print("Error making intermediate keys, ", err)
+		return ck, fmt.Errorf("error making intermediate keys, %s", err)
 	}
 
 	// finally decrypting the real users encryption key:
 	// https://github.com/attie/bitwarden-decrypt#decrypt-the-users-final-keys
+	debugLog("decrypting final encryption keys")
 	ekCs, err := NewCipherString(bwData.EncKey)
 	if err != nil {
-		log.Print("Error making cipherstring from encKey, ", err)
+		return ck, fmt.Errorf("error making cipherstring from encKey, %s", err)
 	}
 	userDecryptKey, err := ekCs.DecryptKey(interKeys, ekCs.encryptionType)
 	if err != nil {
-		log.Print("Error decrypting key, ", err)
+		return ck, fmt.Errorf("error decrypting key, %s", err)
 	}
-	tmpKeyEnc := userDecryptKey[:32]
-	tmpKeyMac := userDecryptKey[32:64]
+
+	debugLog(fmt.Sprintf("bwData encKey length is: %d", len(bwData.EncKey)))
+	debugLog(fmt.Sprintf("bwData encKey encryption type is: %d", ekCs.encryptionType))
+	debugLog(fmt.Sprintf("User decrypt key length is: %d", len(userDecryptKey.EncKey)))
+	if len(userDecryptKey.EncKey) != 32 {
+		log.Print("User decrypt key length is too short, returning with error. length is: ", len(userDecryptKey.EncKey))
+		return ck, fmt.Errorf("user decrypt key length is too short")
+	}
 	userKey := CryptoKey{
-		EncKey:         tmpKeyEnc,
-		MacKey:         tmpKeyMac,
+		EncKey:         userDecryptKey.EncKey,
+		MacKey:         userDecryptKey.MacKey,
 		EncryptionType: 2,
 	}
 	return userKey, err

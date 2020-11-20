@@ -24,3 +24,5 @@ workflow/bitwarden-alfred-workflow
 workflow/icons
 workflow/assets
 workflow/README.html
+workflow/List Filter Images
+workflow/bw_cache_update.sh

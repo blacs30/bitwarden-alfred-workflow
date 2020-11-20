@@ -78,14 +78,6 @@ func runSync(force bool, last bool) {
 			args = fmt.Sprintf("%s sync --session %s", conf.BwExec, token)
 		}
 
-		// Clear the cache only if not getting --last sync date
-		if !last {
-			err := clearCache()
-			if err != nil {
-				log.Print("Error while deleting Caches ", err)
-			}
-		}
-
 		result, err := runCmd(args, message)
 		if err != nil {
 			wf.FatalError(err)
@@ -265,6 +257,7 @@ func runGetItem() {
 				encryptedSecret = value.String()
 			} else {
 				log.Print("Error, value for gjson not found.")
+				isDecryptSecretFromJsonFailed = true
 			}
 		}
 
@@ -277,6 +270,7 @@ func runGetItem() {
 			decryptedString, err = otpKey(decryptedString)
 			if err != nil {
 				log.Print("Error getting topt key, ", err)
+				isDecryptSecretFromJsonFailed = true
 			}
 		}
 		receivedItem = decryptedString
@@ -520,6 +514,12 @@ func runLogin() {
 	}
 	searchAlfred(conf.BwKeyword)
 	fmt.Println("Logged In.")
+
+	// reset sync-cache
+	err = wf.Cache.StoreJSON(CACHE_NAME, nil)
+	if err != nil {
+		fmt.Println("Error cleaning cache..")
+	}
 }
 
 // Logout from Bitwarden
@@ -544,6 +544,12 @@ func runLogout() {
 		wf.FatalError(err)
 	}
 	fmt.Println("Logged Out")
+
+	// reset sync-cache
+	err = wf.Cache.StoreJSON(CACHE_NAME, nil)
+	if err != nil {
+		fmt.Println("Error cleaning cache..")
+	}
 }
 
 func runCache() {
