@@ -432,7 +432,7 @@ func setModAction(itemConfig *itemsModifierActionRelation, item Item, itemType s
 			if action == "card" {
 				subtitle := "Copy Card Number"
 				if modMode == "nomod" {
-					subtitle = fmt.Sprintf("%s, %s, ↩ or ⇥ copy Card Number, %s copy Securitey Code, %s show more", item.Card.Brand, item.Card.Number, codeEmoji, moreEmoji)
+					subtitle = fmt.Sprintf("%s, %s, ↩ or ⇥ copy Card Number, %s copy Security Code, %s show more", item.Card.Brand, item.Card.Number, codeEmoji, moreEmoji)
 				}
 				modItem := modifierActionContent{
 					Title:        title,
