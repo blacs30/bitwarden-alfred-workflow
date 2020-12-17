@@ -173,5 +173,26 @@ A big thanks to all code contributors but also to everyone who creates issues an
 
   ![image](./assets/catalina-warning.png)
 
+  **Workaround:**
+
   Per [the installation steps](https://github.com/blacs30/bitwarden-alfred-workflow#installation), you **_MUST_** add Alfred to the list of Developer Tool exceptions for Alfred to run any workflow that contains an executable (like this one)
+
+- Using `bw` cli and this workflow in parallel can possibly cause this error occurs `Unexpected error. Exit code -1.`
+
+  The reason for that is when the `bw` cli is used in the terminal and the password is entered that a new session is initiated and the workflow's session invalidated.
+
+  **Workaround:**
+
+  You can use the bash functions created by @luckman212 and located [here in github](https://github.com/luckman212/bitwarden-cli-helpers)<br>
+  Download the bash file and source it in your own `.bash_profile` or `.zshrc`
+
+- Getting a secret still takes very much time
+
+  With version 2.2.0 this workflow decrypts the secrets without using the `bw` cli. This is much faster but it might possibly can fail.<br>
+  If it fails it falls back and uses the `bw` cli to get the secret. The decryption takes then more time again, was in the previous versions.<br>
+
+  **Workaround:**
+
+  To use the workflows faster decryption you can [follow this instruction by Bitwarden](https://bitwarden.com/help/article/update-encryption-key/)) <br>
+  to update the encryption keys to the new mechanism.
 
