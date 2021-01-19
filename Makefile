@@ -22,7 +22,11 @@ test-coverage: ## Run tests with coverage
 	@cat cover.out >> coverage.txt
 
 build: dep ## Build the binary file
-	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -i -o workflow/$(PROJECT_NAME)
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o workflow/$(PROJECT_NAME)-amd64
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o workflow/$(PROJECT_NAME)-arm64
+	@lipo -create -output workflow/$(PROJECT_NAME) workflow/$(PROJECT_NAME)-amd64 workflow/$(PROJECT_NAME)-arm64
+	@rm -f workflow/$(PROJECT_NAME)-amd64
+	@rm -f workflow/$(PROJECT_NAME)-arm64
 
 clean: ## Remove previous build
 	@rm -f workflow/$(PROJECT_NAME)

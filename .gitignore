@@ -21,6 +21,8 @@ coverage.txt
 .idea
 *.alfredworkflow
 workflow/bitwarden-alfred-workflow
+workflow/bitwarden-alfred-workflow-amd64
+workflow/bitwarden-alfred-workflow-arm64
 workflow/icons
 workflow/assets
 workflow/README.html
