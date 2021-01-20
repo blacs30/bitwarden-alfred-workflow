@@ -35,7 +35,11 @@ jobs:
         run: |
           go get -u github.com/jason0x43/go-alfred/alfred
           go mod download
-          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o=$(pwd)/workflow/bitwarden-alfred-workflow .
+          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o $(pwd)/workflow/bitwarden-alfred-workflow-amd64 .
+          CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o $(pwd)/workflow/bitwarden-alfred-workflow-arm64 .
+          lipo -create -output $(pwd)/workflow/bitwarden-alfred-workflow $(pwd)/workflow/bitwarden-alfred-workflow-amd64 $(pwd)/workflow/bitwarden-alfred-workflow-arm64
+          rm -f $(pwd)/workflow/bitwarden-alfred-workflow-amd64
+          rm -f $(pwd)/workflow/bitwarden-alfred-workflow-arm64
 
       - name: Copy run dependencies
         run: |
