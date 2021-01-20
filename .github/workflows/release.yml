@@ -27,7 +27,7 @@ jobs:
 
       -
         name: "Validates GO releaser config"
-        uses: "docker://goreleaser/goreleaser:latest"
+        uses: goreleaser/goreleaser-action@v2
         with:
           args: check
 
