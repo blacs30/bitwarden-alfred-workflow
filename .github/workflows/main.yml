@@ -41,7 +41,7 @@ jobs:
 
   test:
     name: test
-    runs-on: macos-11.0
+    runs-on: macos-latest
     steps:
       - name: Granting private modules access
         run: |
@@ -75,7 +75,7 @@ jobs:
 
   build:
     name: Build
-    runs-on: macos-11.0
+    runs-on: macos-latest
     needs: [lint, test]
     steps:
       - name: Granting private modules access
