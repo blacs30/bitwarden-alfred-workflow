@@ -16,7 +16,7 @@ on:
 jobs:
   lint:
     name: lint
-    runs-on: macos-11.0
+    runs-on: ubuntu-latest
     steps:
       - name: Granting private modules access
         run: |
