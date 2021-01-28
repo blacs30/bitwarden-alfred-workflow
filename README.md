@@ -195,4 +195,12 @@ A big thanks to all code contributors but also to everyone who creates issues an
 
   To use the workflows faster decryption you can [follow this instruction by Bitwarden](https://bitwarden.com/help/article/update-encryption-key/)) <br>
   to update the encryption keys to the new mechanism.
+  
+  The linked doc doesn't specify how to force creation of a new key. It's easy though:
+
+  - Login to your vault.
+  - Click Settings at the top of the page.
+  - Under My Account, scroll down to Encryption Key Settings.
+  - Follow the instructions provided.
+  - Logout (and on again) from Bitwarden on all devices.
 
