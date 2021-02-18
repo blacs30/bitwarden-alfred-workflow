@@ -4,7 +4,8 @@ GO111MODULE=on
 .EXPORT_ALL_VARIABLES:
 .PHONY: all dep lint vet test test-coverage build clean
 
-all: build
+all: build copy-build-assets package-alfred
+
 dep: ## Get the dependencies
 	@go mod download
 
@@ -22,7 +23,11 @@ test-coverage: ## Run tests with coverage
 	@cat cover.out >> coverage.txt
 
 build: dep ## Build the binary file
-	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -i -o workflow/$(PROJECT_NAME)
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o workflow/$(PROJECT_NAME)-amd64
+	@CGO_ENABLED=0 GOOS=darwin GOARCH=arm64 go build -o workflow/$(PROJECT_NAME)-arm64
+	@lipo -create -output workflow/$(PROJECT_NAME) workflow/$(PROJECT_NAME)-amd64 workflow/$(PROJECT_NAME)-arm64
+	@rm -f workflow/$(PROJECT_NAME)-amd64
+	@rm -f workflow/$(PROJECT_NAME)-arm64
 
 clean: ## Remove previous build
 	@rm -f workflow/$(PROJECT_NAME)
@@ -34,3 +39,13 @@ install-hooks:
 	@mkdir -p .git/hooks
 	@cp .github/hooks/* .git/hooks
 	@chmod +x .git/hooks/*
+
+copy-build-assets:
+	@cp -r icons ./workflow
+	@cp -r assets ./workflow
+	@go get github.com/pschlump/markdown-cli
+	@markdown-cli -i README.md -o workflow/README.html
+
+package-alfred:
+	@cd ./workflow && zip -r ../bitwarden-alfred-workflow.alfredworkflow ./* \
+	#&& cd .. && rm -rf workflow && git checkout workflow

@@ -8,7 +8,7 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: Ubuntu-20.04
     steps:
       - name: Granting private modules access
         run: |
@@ -17,7 +17,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: ^1.14
+          go-version: ^1.16
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -25,29 +25,23 @@ jobs:
       - name: Unshallow
         run: git fetch --prune --unshallow
 
-      -
-        name: "Validates GO releaser config"
-        uses: "docker://goreleaser/goreleaser:latest"
+      - name: "Validates GO releaser config"
+        uses: goreleaser/goreleaser-action@v2
         with:
           args: check
 
       - name: Build Alfred workflow
         run: |
-          go get -u github.com/jason0x43/go-alfred/alfred
-          go mod download
-          CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o=$(pwd)/workflow/bitwarden-alfred-workflow .
+          make dep-alfred
+          make build
 
       - name: Copy run dependencies
         run: |
-          cp -r icons ./workflow
-          cp -r assets ./workflow
-          go get github.com/pschlump/markdown-cli
-          markdown-cli -i README.md -o workflow/README.html
+          make copy-build-assets
 
       - name: Package Alfred workflow
         run: |
-          cd ./workflow && zip -r ../bitwarden-alfred-workflow.alfredworkflow ./*
-          cd .. && rm -rf workflow && git checkout workflow
+          make package-alfred
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
