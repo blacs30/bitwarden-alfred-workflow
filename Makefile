@@ -4,7 +4,7 @@ GO111MODULE=on
 .EXPORT_ALL_VARIABLES:
 .PHONY: all dep lint vet test test-coverage build clean
 
-all: build copy-build-assets package-alfred
+all: build copy-build-assets
 
 dep: ## Get the dependencies
 	@go mod download
@@ -45,4 +45,4 @@ copy-build-assets:
 
 package-alfred:
 	@cd ./workflow && zip -r ../bitwarden-alfred-workflow.alfredworkflow ./* \
-	#&& cd .. && rm -rf workflow && git checkout workflow
+	&& cd .. && rm -rf workflow && git checkout workflow
