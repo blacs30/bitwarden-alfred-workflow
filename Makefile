@@ -8,6 +8,7 @@ all: build copy-build-assets package-alfred
 
 dep: ## Get the dependencies
 	@go mod download
+	@npm install lipo
 
 lint: ## Lint Golang files
 	@golangci-lint run --timeout 3m
