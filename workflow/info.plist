@@ -1361,7 +1361,7 @@ Caching of the secret/item names (not the secret values itself) are cached so th
 		<string>SERVER_URL</string>
 	</array>
 	<key>version</key>
-	<string>2.2.1</string>
+	<string>2.2.2</string>
 	<key>webaddress</key>
 	<string>https://github.com/blacs30/bitwarden-alfred-workflow</string>
 </dict>
