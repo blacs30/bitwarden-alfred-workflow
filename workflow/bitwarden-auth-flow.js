@@ -125,7 +125,7 @@ function login(email, password, totp, totpMode) {
 function unlock(password) {
     var app = Application.currentApplication()
     app.includeStandardAdditions = true
-    var cmd = `PATH=${PATH}; ${BW_EXEC} unlock "${password}" --raw`
+    var cmd = `PATH=${PATH}; ${BW_EXEC} unlock '${password}' --raw`
     try {
         var result = app.doShellScript(cmd);
         var res = setToken(result)
