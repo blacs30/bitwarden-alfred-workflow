@@ -243,13 +243,13 @@ func runConfig() {
 		Var("action", "-open")
 
 	wf.NewItem("Sync Bitwarden Secrets").
-		Subtitle("Sync cached keys of Bitwarden secrets (values, the real secrets, are not cached)").
+		Subtitle("Sync Bitwarden secrets with server.").
 		Valid(true).
 		UID("sync").
 		Icon(iconReload).
 		Var("action", "-sync").
 		Var("action2", "-force").
-		Var("notification", "Syncing Bitwarden secrets cache…").
+		Var("notification", "Syncing Bitwarden secrets").
 		Arg("-background")
 
 	wf.NewItem("Download/Update Favicon for URLs").
