@@ -148,7 +148,11 @@ plist_tmp_path="$TMPDIR/${launchd_name}.plist"
 infoplist=$(/usr/bin/find "${wf_basedir}" -name info.plist -depth 2 -exec /usr/bin/grep -H "<string>${alfred_workflow_bundleid}</string>" {} \; | /usr/bin/awk -F: '{ print $1 }')
 [ -e "${infoplist}" ] || _end 1 "can't find Bitwarden v2 workflow"
 wf_dir=${infoplist%/*}
-wf_bin="${wf_dir}/bitwarden-alfred-workflow"
+if [ `uname -p` = "i386" ]; then 
+    wf_bin="${wf_dir}/bitwarden-alfred-workflow-amd64"
+else
+    wf_bin="${wf_dir}/bitwarden-alfred-workflow-arm64"
+fi
 alfred_workflow_version=$(_get_var_from_plist "${infoplist}" version)
 [ -n "${alfred_workflow_version}" ] || _end 1 "can't determine workflow version"
 echo "found workflow v${alfred_workflow_version} at ${wf_dir}" 1>&2

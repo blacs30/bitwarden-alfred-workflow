@@ -111,7 +111,12 @@ if ! hash "${bwexec}" 2>/dev/null; then
 	echo "bw command not found, check PATH env variable"; exit 1;
 fi
 export BW_EXEC=${bwexec}
-wf_bin="${wf_dir}/bitwarden-alfred-workflow"
+
+if [ `uname -p` = "i386" ]; then 
+    wf_bin="${wf_dir}/bitwarden-alfred-workflow-amd64"
+else
+    wf_bin="${wf_dir}/bitwarden-alfred-workflow-arm64"
+fi
 
 case $1 in
 	(-i|--install)
