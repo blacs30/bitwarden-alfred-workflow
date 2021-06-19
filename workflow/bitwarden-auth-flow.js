@@ -69,11 +69,13 @@ function run(arg) {
 }
 
 function login(email, password, totp, totpMode) {
+    var escapedPassword = password.replace(/"/g, '\\"')
+
     var app = Application.currentApplication()
     app.includeStandardAdditions = true
 
     if (totpMode.localeCompare("1") == 0) {
-        var cmd = `PATH=${PATH}; ${BW_EXEC} login ${email} --method ${totpMode} "${password}"`
+        var cmd = `PATH=${PATH}; ${BW_EXEC} login ${email} --method ${totpMode} "${escapedPassword}"`
         try{
             var result = app.doShellScript(cmd);
         }catch(e) {
@@ -96,7 +98,7 @@ function login(email, password, totp, totpMode) {
         })
         var totpCode = response.textReturned
 
-        var cmd = `PATH=${PATH}; ${BW_EXEC} login ${email} --method ${totpMode} --code ${totpCode} "${password}" --raw`
+        var cmd = `PATH=${PATH}; ${BW_EXEC} login ${email} --method ${totpMode} --code ${totpCode} "${escapedPassword}" --raw`
         try {
             var result = app.doShellScript(cmd);
         }catch(e) {
@@ -105,9 +107,9 @@ function login(email, password, totp, totpMode) {
         }
     } else {
         if (totp.localeCompare("") != 0) {
-            var cmd = `PATH=${PATH}; ${BW_EXEC} login ${email} --method ${totpMode} --code ${totp} "${password}" --raw`
+            var cmd = `PATH=${PATH}; ${BW_EXEC} login ${email} --method ${totpMode} --code ${totp} "${escapedPassword}" --raw`
         } else {
-            var cmd = `PATH=${PATH}; ${BW_EXEC} login ${email} "${password}" --raw`
+            var cmd = `PATH=${PATH}; ${BW_EXEC} login ${email} "${escapedPassword}" --raw`
         }
         try {
             var result = app.doShellScript(cmd);
@@ -123,9 +125,11 @@ function login(email, password, totp, totpMode) {
 }
 
 function unlock(password) {
+    var escapedPassword = password.replace(/"/g, '\"')
+
     var app = Application.currentApplication()
     app.includeStandardAdditions = true
-    var cmd = `PATH=${PATH}; ${BW_EXEC} unlock '${password}' --raw`
+    var cmd = `PATH=${PATH}; ${BW_EXEC} unlock "${escapedPassword}" --raw`
     try {
         var result = app.doShellScript(cmd);
         var res = setToken(result)
@@ -138,12 +142,12 @@ function unlock(password) {
     }
 }
 
-function setToken(password) {
+function setToken(token) {
     var bundleId = "com.lisowski-development.alfred.bitwarden"
     var app = Application.currentApplication()
     app.includeStandardAdditions = true
 
-    var cmd = `/usr/bin/security add-generic-password -s ${bundleId} -a token -w ${password} -U`
+    var cmd = `/usr/bin/security add-generic-password -s ${bundleId} -a token -w ${token} -U`
     try {
         app.doShellScript(cmd);
         return ""
