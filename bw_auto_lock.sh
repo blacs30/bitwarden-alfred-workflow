@@ -112,11 +112,7 @@ if ! hash "${bwexec}" 2>/dev/null; then
 fi
 export BW_EXEC=${bwexec}
 
-if [ `uname -p` = "i386" ]; then 
-    wf_bin="${wf_dir}/bitwarden-alfred-workflow-amd64"
-else
-    wf_bin="${wf_dir}/bitwarden-alfred-workflow-arm64"
-fi
+wf_bin="${wf_dir}/bitwarden-alfred-workflow"
 
 case $1 in
 	(-i|--install)

@@ -667,7 +667,7 @@
 				<key>runningsubtext</key>
 				<string>Loading auth configs…</string>
 				<key>script</key>
-				<string>/bin/chmod +x bitwarden-alfred-workflow-*; if [ "$(arch)" = "i386" ] ; then ./bitwarden-alfred-workflow-amd64 -auth -- "$1"; else ./bitwarden-alfred-workflow-arm64 -auth -- "$1"; fi</string>
+				<string>./fix_flags.sh; ./bitwarden-alfred-workflow -auth -- "$1"</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
@@ -714,7 +714,7 @@
 				<key>runningsubtext</key>
 				<string></string>
 				<key>script</key>
-				<string>/bin/chmod +x bitwarden-alfred-workflow-*; if [ "$(arch)" = "i386" ] ; then ./bitwarden-alfred-workflow-amd64 $action $action2 $action3 $1; else ./bitwarden-alfred-workflow-arm64 $action $action2 $action3 $1; fi</string>
+				<string>./fix_flags.sh; ./bitwarden-alfred-workflow $action $action2 $action3 $1</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
@@ -762,7 +762,7 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>script</key>
-				<string>/bin/chmod +x bitwarden-alfred-workflow-*; if [ "$(arch)" = "i386" ] ; then ./bitwarden-alfred-workflow-amd64 $action $action2 $action3 $1; else ./bitwarden-alfred-workflow-arm64 $action $action2 $action3 $1; fi</string>
+				<string>./fix_flags.sh; ./bitwarden-alfred-workflow $action $action2 $action3 $1</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
@@ -924,7 +924,7 @@
 				<key>runningsubtext</key>
 				<string>Finding secrets…</string>
 				<key>script</key>
-				<string>/bin/chmod +x bitwarden-alfred-workflow-*; if [ "$(arch)" = "i386" ] ; then ./bitwarden-alfred-workflow-amd64 $1; else ./bitwarden-alfred-workflow-arm64 $1; fi</string>
+				<string>./fix_flags.sh; ./bitwarden-alfred-workflow $1</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
@@ -1029,8 +1029,7 @@
 				<key>runningsubtext</key>
 				<string>Finding secrets in folders…</string>
 				<key>script</key>
-				<string>/bin/chmod +x bitwarden-alfred-workflow-*; if [ "$(arch)" = "i386" ] ; then ./bitwarden-alfred-workflow-amd64 --folder $action $action2 $action3 $1; else ./bitwarden-alfred-workflow-arm64 --folder $action $action2 $action3 $1; fi
-</string>
+				<string>./fix_flags.sh; ./bitwarden-alfred-workflow --folder $action $action2 $action3 $1</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
@@ -1158,7 +1157,7 @@
 				<key>runningsubtext</key>
 				<string>Reading settings…</string>
 				<key>script</key>
-				<string>/bin/chmod +x bitwarden-alfred-workflow-*; if [ "$(arch)" = "i386" ] ; then ./bitwarden-alfred-workflow-amd64 -conf "$1"; else ./bitwarden-alfred-workflow-arm64 -conf "$1"; fi</string>
+				<string>./fix_flags.sh; ./bitwarden-alfred-workflow -conf "$1"</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
@@ -1206,7 +1205,7 @@
 				<key>escaping</key>
 				<integer>102</integer>
 				<key>script</key>
-				<string>/bin/chmod +x bitwarden-alfred-workflow-*; if [ "$(arch)" = "i386" ] ; then ./bitwarden-alfred-workflow-amd64 $action $action2 $action3 $1; else ./bitwarden-alfred-workflow-arm64 $action $action2 $action3 $1; fi</string>
+				<string>./fix_flags.sh; ./bitwarden-alfred-workflow $action $action2 $action3 $1</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
@@ -1270,7 +1269,7 @@
 				<key>runningsubtext</key>
 				<string></string>
 				<key>script</key>
-				<string>/bin/chmod +x bitwarden-alfred-workflow-*; if [ "$(arch)" = "i386" ] ; then ./bitwarden-alfred-workflow-amd64 $action $action2 $action3 $1; else ./bitwarden-alfred-workflow-arm64 $action $action2 $action3 $1; fi</string>
+				<string>./fix_flags.sh; ./bitwarden-alfred-workflow $action $action2 $action3 $1</string>
 				<key>scriptargtype</key>
 				<integer>1</integer>
 				<key>scriptfile</key>
