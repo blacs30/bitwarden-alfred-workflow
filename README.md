@@ -49,10 +49,11 @@
 
 ## PATH configuration
 
-In many cases the bw executable is located in a path outside of the default system PATH.<br>
+In many cases the bw and node executables are located in paths outside of the default system PATH.<br>
 Please configure the Alfred Worklow variables PATH accordingly.<br>
 In a normal terminal type `which bw` and copy the dirname (everything except the "bw") into the PATH workflow variable.<br>
-The best is to append it to the existing string and separate it by a colon (:)
+The best is to append it to the existing string and separate it by a colon (:)<br>
+Repeat the above steps for node, starting with `which node`.
 
 ![Workflow PATH config](./assets/workflow-path-config.gif)
 
