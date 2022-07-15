@@ -125,7 +125,10 @@ func BitwardenAuthChecks() (loginErr error, unlockErr error) {
 	if err != nil {
 		args = fmt.Sprintf("%s unlock %s --check", conf.BwExec, noQuiet)
 	} else {
-		args = fmt.Sprintf("%s unlock %s --check --session %s", conf.BwExec, noQuiet, token)
+		// workaround for https://github.com/bitwarden/cli/issues/480
+		// args = fmt.Sprintf("%s unlock %s --check --session %s", conf.BwExec, noQuiet, token)
+		args = fmt.Sprintf("%s list folders --nointeraction --session %s", conf.BwExec, token)
+		// end workaround
 	}
 	_, unlockErr = runCmd(args, NOT_UNLOCKED_MSG)
 	if wf.Debug() {
