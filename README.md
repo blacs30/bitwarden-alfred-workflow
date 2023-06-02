@@ -192,7 +192,7 @@ MODIFIER_3_ACTION=code,card (2 items listed but of the same *type*, therefore th
 # Develop locally
 
 1. Install alfred cli <br>
-`go get -u github.com/jason0x43/go-alfred/alfred`
+`go install github.com/jason0x43/go-alfred/alfred@latest`
 
 2. Clone [this repo](https://github.com/blacs30/bitwarden-alfred-workflow).
 
