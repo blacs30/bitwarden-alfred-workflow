@@ -319,11 +319,10 @@ func runGetItem() {
 		}
 
 		if totp {
-			return
 		} else {
 			receivedItem = ""
 		}
-		if jsonPath != "" && !(totp || attachment != "" || attachment == "") {
+		if jsonPath != "" && !totp {
 			log.Println("Sent jsonPath is", jsonPath)
 			// jsonpath operation to get only required part of the item
 			singleString := strings.Join(result, " ")
