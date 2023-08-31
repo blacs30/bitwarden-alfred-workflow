@@ -107,7 +107,8 @@ func decodeBitwardenDataJson(byteData []byte) (BwData, error) {
 		if newBwData.ActiveUserId != "" && newBwData.UserId == "" {
 			// version 1.21.1 and newer
 			newBwData.UserId = newBwData.ActiveUserId
-			if val, ok := table[fmt.Sprintf("__PROTECTED__%s_masterkey_auto", newBwData.UserId)]; ok {
+
+			if val, ok := table[fmt.Sprintf("__PROTECTED__%s_user_auto", newBwData.UserId)]; ok {
 				newBwData.ProtectedKey = fmt.Sprintf("%s", val)
 			}
 			if val, ok := table["global"]; ok {
@@ -128,6 +129,11 @@ func decodeBitwardenDataJson(byteData []byte) (BwData, error) {
 							newBwData.Keys.CryptoSymmetricKey.Encrypted = fmt.Sprintf("%s", val)
 							newBwData.EncKey = newBwData.Keys.CryptoSymmetricKey.Encrypted
 						}
+					}
+					// For Version >= 2023.8.2
+					if masterKeyEncryptedUserKeyVal, ok := keyVal.(map[string]interface{})["masterKeyEncryptedUserKey"]; ok {
+						newBwData.Keys.CryptoSymmetricKey.Encrypted = fmt.Sprintf("%s", masterKeyEncryptedUserKeyVal)
+						newBwData.EncKey = newBwData.Keys.CryptoSymmetricKey.Encrypted
 					}
 					if privateKeyVal, ok := keyVal.(map[string]interface{})["privateKey"]; ok {
 						if val, ok := privateKeyVal.(map[string]interface{})["encrypted"]; ok {

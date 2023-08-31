@@ -42,7 +42,7 @@ func Test_decodeBitwardenDataJson1(t *testing.T) {
 		{
 			name: "since-1.21.1",
 			args: args{
-				byteData: []byte(`{"global":{"installedVersion":"1.21.1"},"userIdBlaBlubb":{"keys":{"cryptoSymmetricKey":{"encrypted":"ThisIsCryptoSymmetricKeyEncrypted"},"privateKey":{"encrypted":"ThisIsPrivateKeyEncrypted"},"apiKeyClientSecret":"ThisIsApiKeyClientSecret","legacyEtmKey":null},"profile":{"userId":"userIdBlaBlubb","email":"bitwarden@test.com","kdfIterations":50000,"kdfType":0,"lastSync":"2022-02-28T16:58:54.900Z","everBeenUnlocked":true},"tokens":{"accessToken":"ThisIsAccessToken"}},"activeUserId":"userIdBlaBlubb","__PROTECTED__userIdBlaBlubb_masterkey_auto":"ThisIs__Protected__masterkey"}`),
+				byteData: []byte(`{"global":{"installedVersion":"1.21.1"},"userIdBlaBlubb":{"keys":{"masterKeyEncryptedUserKey":"ThisIsCryptoSymmetricKeyEncrypted","privateKey":{"encrypted":"ThisIsPrivateKeyEncrypted"},"apiKeyClientSecret":"ThisIsApiKeyClientSecret","legacyEtmKey":null},"profile":{"userId":"userIdBlaBlubb","email":"bitwarden@test.com","kdfIterations":50000,"kdfType":0,"lastSync":"2022-02-28T16:58:54.900Z","everBeenUnlocked":true},"tokens":{"accessToken":"ThisIsAccessToken"}},"activeUserId":"userIdBlaBlubb","__PROTECTED__userIdBlaBlubb_user_auto":"ThisIs__Protected__masterkey"}`),
 			},
 			wantErr: false,
 			want: BwData{
