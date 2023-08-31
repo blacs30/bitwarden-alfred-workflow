@@ -319,11 +319,7 @@ func runGetItem() {
 		}
 
 		if totp {
-			var combinedString string
-			for _, str := range result {
-				combinedString += str + " "
-			}
-			receivedItem = combinedString
+			return
 		} else {
 			receivedItem = ""
 		}
