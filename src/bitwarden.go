@@ -251,18 +251,18 @@ func runGetItem() {
 				isDecryptSecretFromJsonFailed = true
 			}
 			// replace starting bracket with dot as gsub uses a dot for the first group in an array
-			jsonPath = strings.Replace(jsonPath, "[", ".", -1)
-			jsonPath = strings.Replace(jsonPath, "]", "", -1)
+			gjsonPath := strings.Replace(jsonPath, "[", ".", -1)
+			gjsonPath = strings.Replace(jsonPath, "]", "", -1)
 			if totp {
-				jsonPath = "login.totp"
+				gjsonPath = "login.totp"
 			}
 
 			var value gjson.Result
 			if bwData.ActiveUserId != "" {
 				// different location for version 1.21.1 and above
-				value = gjson.Get(string(data), fmt.Sprintf("%s.data.ciphers.encrypted.%s.%s", bwData.UserId, id, jsonPath))
+				value = gjson.Get(string(data), fmt.Sprintf("%s.data.ciphers.encrypted.%s.%s", bwData.UserId, id, gjsonPath))
 			} else {
-				value = gjson.Get(string(data), fmt.Sprintf("ciphers_%s.%s.%s", bwData.UserId, id, jsonPath))
+				value = gjson.Get(string(data), fmt.Sprintf("ciphers_%s.%s.%s", bwData.UserId, id, gjsonPath))
 			}
 			if value.Exists() {
 				encryptedSecret = value.String()
@@ -322,15 +322,18 @@ func runGetItem() {
 		} else {
 			receivedItem = ""
 		}
+
 		if jsonPath != "" && !totp {
-			log.Println("Sent jsonPath is", jsonPath)
+			log.Println("Received jsonPath for item is", jsonPath)
 			// jsonpath operation to get only required part of the item
 			singleString := strings.Join(result, " ")
+
 			var item interface{}
 			err = json.Unmarshal([]byte(singleString), &item)
 			if err != nil {
 				log.Println(err)
 			}
+
 			res, err := jsonpath.JsonPathLookup(item, fmt.Sprintf("$.%s", jsonPath))
 			if err != nil {
 				log.Println(err)
