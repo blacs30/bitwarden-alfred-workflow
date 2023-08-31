@@ -251,8 +251,9 @@ func runGetItem() {
 				isDecryptSecretFromJsonFailed = true
 			}
 			// replace starting bracket with dot as gsub uses a dot for the first group in an array
-			gjsonPath := strings.Replace(jsonPath, "[", ".", -1)
-			gjsonPath = strings.Replace(jsonPath, "]", "", -1)
+			gjsonPath := jsonPath
+			gjsonPath = strings.Replace(gjsonPath, "[", ".", -1)
+			gjsonPath = strings.Replace(gjsonPath, "]", "", -1)
 			if totp {
 				gjsonPath = "login.totp"
 			}
