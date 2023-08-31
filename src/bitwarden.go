@@ -288,6 +288,8 @@ func runGetItem() {
 		receivedItem = decryptedString
 	}
 	if bwData.UserId == "" || isDecryptSecretFromJsonFailed || attachment != "" {
+		log.Println("Falling back to Bitwarden CLI to get item.")
+
 		// Run the Bitwarden CLI to get the secret
 		// Use it also for getting attachments
 		if attachment != "" {
@@ -297,8 +299,10 @@ func runGetItem() {
 		message := "Failed to get Bitwarden item."
 		args := fmt.Sprintf("%s get item %s --pretty --session %s", conf.BwExec, id, token)
 		if totp {
+			log.Println("Trying to get totp  via Bitwarden cli")
 			args = fmt.Sprintf("%s get totp %s --session %s", conf.BwExec, id, token)
 		} else if attachment != "" {
+			log.Println("Trying to get attachment  via Bitwarden cli")
 			args = fmt.Sprintf("%s get attachment %s --itemid %s --output %s --session %s --raw", conf.BwExec, attachment, id, conf.OutputFolder, token)
 		}
 
@@ -314,8 +318,17 @@ func runGetItem() {
 			return
 		}
 
-		receivedItem = ""
-		if jsonPath != "" {
+		if totp {
+			var combinedString string
+			for _, str := range result {
+				combinedString += str + " "
+			}
+			receivedItem = combinedString
+		} else {
+			receivedItem = ""
+		}
+		if jsonPath != "" && !(totp || attachment != "" || attachment == "") {
+			log.Println("Sent jsonPath is", jsonPath)
 			// jsonpath operation to get only required part of the item
 			singleString := strings.Join(result, " ")
 			var item interface{}
