@@ -104,7 +104,7 @@ echo "found workflow v${alfred_workflow_version} at ${wf_dir}" 1>&2
 WF_PATH=$(_get_var_from_plist "${prefsplist}" PATH)
 [ -n "${WF_PATH}" ] || { echo "Bitwarden CLI Path not set in workflow configuration"; exit 1; }
 BW_EXEC=$(_get_var_from_plist "${infoplist}" variables.BW_EXEC)
-if ! hash "${bwexec}" 2>/dev/null; then
+if ! hash "${BW_EXEC}" 2>/dev/null; then
   echo "bw command not found, check PATH env variable"; exit 1;
 fi
 
