@@ -20,6 +20,12 @@
   - [Contributors](#contributors)
   - [Source that helped me to get started](#source-that-helped-me-to-get-started)
 - [Troubleshooting](#troubleshooting)
+  - ["bitwarden-alfred-workflow" cannot be opened because the developer cannot be verified.](#bitwarden-alfred-workflow-cannot-be-opened-because-the-developer-cannot-be-verified)
+    - [Workaround](#workaround)
+  - [Unexpected error. Exit code -1.](#unexpected-error-exit-code--1)
+    - [Workaround](#workaround-1)
+  - [Getting a secret still takes very much time](#getting-a-secret-still-takes-very-much-time)
+    - [Workaround](#workaround-2)
 
 ## Features
 
@@ -245,31 +251,36 @@ A big thanks to all code contributors but also to everyone who creates issues an
 
 # Troubleshooting
 
-- "I'm seeing the following dialog when running the workflow"
+## "bitwarden-alfred-workflow" cannot be opened because the developer cannot be verified.
+
+  The following dialog can appear when running the workflow:
 
   ![image](./assets/catalina-warning.png)
 
-  **Workaround:**
+### Workaround
 
   Per [the installation steps](https://github.com/blacs30/bitwarden-alfred-workflow#installation), you **_MUST_** add Alfred to the list of Developer Tool exceptions for Alfred to run any workflow that contains an executable (like this one)
 
-- Using `bw` cli and this workflow in parallel can possibly cause this error occurs `Unexpected error. Exit code -1.`
+## Unexpected error. Exit code -1.
 
+  Using `bw` cli and this workflow in parallel can possibly cause this error occurs `Unexpected error. Exit code -1.`
   The reason for that is when the `bw` cli is used in the terminal and the password is entered that a new session is initiated and the workflow's session invalidated.
 
-  **Workaround:**
+### Workaround
 
   You can use the bash functions created by @luckman212 and located [here in github](https://github.com/luckman212/bitwarden-cli-helpers)<br>
   Download the bash file and source it in your own `.bash_profile` or `.zshrc`
 
-- Getting a secret still takes very much time
+## Getting a secret still takes very much time
+
+**NB: The workflow's internal decryption mechanism is currently not working. Follow [issue 171](https://github.com/blacs30/bitwarden-alfred-workflow/issues/171) for progress on this issue.**
 
   With version 2.2.0 this workflow decrypts the secrets without using the `bw` cli. This is much faster but it might possibly can fail.<br>
   If it fails it falls back and uses the `bw` cli to get the secret. The decryption takes then more time again, was in the previous versions.<br>
 
-  **Workaround:**
+### Workaround
 
-  To use the workflows faster decryption you can [follow this instruction by Bitwarden](https://bitwarden.com/help/article/update-encryption-key/)) <br>
+  To use the workflows faster decryption you can [follow this instruction by Bitwarden](https://bitwarden.com/help/kdf-algorithms/#low-kdf-iterations) <br>
   to update the encryption keys to the new mechanism.
 
   The linked doc doesn't specify how to force creation of a new key. It's easy though:
