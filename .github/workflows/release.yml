@@ -45,6 +45,46 @@ jobs:
           name: universal-binary
           path: workflow/bitwarden-alfred-workflow
 
+  sign-release:
+    runs-on: macos-latest
+    steps:
+    # Your existing steps to checkout code and build the binary
+    - name: Install Xcode command line tools
+      run: xcode-select --install
+
+    - name: Dowload artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: universal-binary
+        path: download
+
+    - name: Decode and install the certificate
+      run: |
+        echo "${{ secrets.MAC_CERT_BASE64 }}" | base64 --decode > certificate.p12
+        KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
+        security create-keychain -p "" $KEYCHAIN_PATH
+        security import certificate.p12 -k $KEYCHAIN_PATH -P $MAC_CERT_PASSWORD -T download/bitwarden-alfred-workflow
+        security set-key-partition-list -S apple-tool:,apple: -s -k "" $KEYCHAIN_PATH
+        security unlock-keychain -p "" $KEYCHAIN_PATH
+
+    - name: Sign the binary
+      run: |
+        codesign --sign "Bitwarden Alread Workflow: zshen (bitwarden-alfred-workflow)" --timestamp --options runtime --keychain $RUNNER_TEMP/build.keychain download/bitwarden-alfred-workflow
+
+    - name: Notarize the binary
+      uses: apple-actions/notarize-app@v1
+      with:
+        app-path: download/bitwarden-alfred-workflow 
+        apple-id: ${{ secrets.APPLE_ID }}
+        apple-id-password: ${{ secrets.MAC_DEV_PASSWORD }}
+        primary-bundle-id: "com.bitwarden-alfred-workflow" # Use an appropriate bundle ID for your app
+
+    - name: Staple the binary
+      run: xcrun stapler staple download/bitwarden-alfred-workflow
+
+    # Followed by your existing steps to create a release and upload artifacts
+ 
+
   release:
     needs: build-release
     runs-on: ubuntu-20.04
