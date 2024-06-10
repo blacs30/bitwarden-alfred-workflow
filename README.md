@@ -2,6 +2,14 @@
 
 > Access your Bitwarden passwords, secrets, attachments and more via this powerful Alfred Workflow
 
+
+> THIS PROJECT HAS BEEN ARCHIVED  
+> If someone wants to take this project over please contact me  
+> I recommend this alternative workflow  
+> https://github.com/ajrosen/Bitwarden-Accelerator  
+> Alternatively I can also recommend 1Password as password manager
+
+
 # Table of contents
 
 - [Bitwarden Alfred Workflow](#bitwarden-alfred-workflow)
